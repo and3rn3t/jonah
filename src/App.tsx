@@ -16,6 +16,7 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 import { SwimmingTimeline } from '@/components/SwimmingTimeline'
 import { StatsDashboard } from '@/components/StatsDashboard'
 import { SwimmingGoals } from '@/components/SwimmingGoals'
+import { PoolHeader } from '@/components/PoolHeader'
 import { useKV } from '@github/spark/hooks'
 import type { SiteContent, ContactMessage, SwimmingGoal } from '@/lib/types'
 
@@ -481,6 +482,8 @@ Create a concise, friendly email notification (subject and body) that informs th
             </p>
           </motion.div>
         </section>
+
+        <PoolHeader />
 
         <Separator className="max-w-6xl mx-auto" />
 
