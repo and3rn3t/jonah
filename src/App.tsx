@@ -394,7 +394,7 @@ Create a concise, friendly email notification (subject and body) that informs th
             </motion.div>
 
             <motion.div variants={itemVariants}>
-              <PhotoGallery isOwner={isOwner} />
+              <PhotoGallery />
             </motion.div>
           </div>
         </section>

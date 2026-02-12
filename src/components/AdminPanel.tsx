@@ -9,10 +9,11 @@ import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Plus, Trash, PencilSimple, FloppyDisk, Gear, X, Star, Clock, LockKey, Eye, EyeSlash, Envelope } from '@phosphor-icons/react'
+import { Plus, Trash, PencilSimple, FloppyDisk, Gear, X, Star, Clock, LockKey, Eye, EyeSlash, Envelope, Upload, Images } from '@phosphor-icons/react'
 import { useKV } from '@github/spark/hooks'
 import { toast } from 'sonner'
 import type { SiteContent, ContactMessage } from '@/lib/types'
+import type { Photo } from '@/components/PhotoGallery'
 
 interface AdminPanelProps {
   content: SiteContent
@@ -28,7 +29,17 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
   const [adminPassword, setAdminPassword] = useKV<string>('admin-password', 'admin123')
   const [localContent, setLocalContent] = useState<SiteContent>(content)
   const [messages, setMessages] = useKV<ContactMessage[]>('contact-messages', [])
+  const [photos, setPhotos] = useKV<Photo[]>('gallery-photos', [])
   const [unreadCount, setUnreadCount] = useState(0)
+  const [isAddPhotoDialogOpen, setIsAddPhotoDialogOpen] = useState(false)
+  const [isEditPhotoDialogOpen, setIsEditPhotoDialogOpen] = useState(false)
+  const [editingPhoto, setEditingPhoto] = useState<Photo | null>(null)
+  const [newPhoto, setNewPhoto] = useState({
+    title: '',
+    category: 'swimming' as 'swimming' | 'anime',
+    description: '',
+    url: ''
+  })
 
   const unreadMessages = (messages || []).filter(msg => !msg.read)
   
@@ -212,6 +223,69 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
     return date.toLocaleString()
   }
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file')
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setNewPhoto(prev => ({ ...prev, url: reader.result as string }))
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleAddPhoto = () => {
+    if (!newPhoto.title || !newPhoto.url) {
+      toast.error('Please provide a title and upload an image')
+      return
+    }
+
+    const photo: Photo = {
+      id: Date.now().toString(),
+      title: newPhoto.title,
+      category: newPhoto.category,
+      description: newPhoto.description || undefined,
+      url: newPhoto.url
+    }
+
+    setPhotos(currentPhotos => [...(currentPhotos || []), photo])
+    toast.success('Photo added successfully! 📸')
+    
+    setNewPhoto({ title: '', category: 'swimming', description: '', url: '' })
+    setIsAddPhotoDialogOpen(false)
+  }
+
+  const handleEditPhoto = () => {
+    if (!editingPhoto) return
+
+    setPhotos(currentPhotos => 
+      (currentPhotos || []).map(p => 
+        p.id === editingPhoto.id ? editingPhoto : p
+      )
+    )
+    
+    toast.success('Photo updated successfully! ✨')
+    setEditingPhoto(null)
+    setIsEditPhotoDialogOpen(false)
+  }
+
+  const handleDeletePhoto = (photoId: string) => {
+    setPhotos(currentPhotos => 
+      (currentPhotos || []).filter(p => p.id !== photoId)
+    )
+    toast.success('Photo deleted')
+  }
+
+  const openEditPhotoDialog = (photo: Photo) => {
+    setEditingPhoto({ ...photo })
+    setIsEditPhotoDialogOpen(true)
+  }
+
   return (
     <>
       <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
@@ -304,10 +378,11 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
           </DialogHeader>
 
           <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="grid w-full grid-cols-7">
+            <TabsList className="grid w-full grid-cols-8">
               <TabsTrigger value="profile">Profile</TabsTrigger>
               <TabsTrigger value="anime">Anime</TabsTrigger>
               <TabsTrigger value="swimming">Swimming</TabsTrigger>
+              <TabsTrigger value="photos">Photos</TabsTrigger>
               <TabsTrigger value="about">About</TabsTrigger>
               <TabsTrigger value="social">Social</TabsTrigger>
               <TabsTrigger value="messages" className="relative">
@@ -565,6 +640,227 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
                 </div>
               </div>
             </div>
+          </TabsContent>
+
+          <TabsContent value="photos" className="space-y-4 mt-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <Images size={24} weight="duotone" className="text-accent" />
+                  Photo Gallery
+                </h3>
+                <p className="text-sm text-muted-foreground">Manage your swimming and anime photos</p>
+              </div>
+              <Dialog open={isAddPhotoDialogOpen} onOpenChange={setIsAddPhotoDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-accent hover:bg-accent/90 gap-2">
+                    <Plus size={18} weight="bold" />
+                    Add Photo
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Add New Photo</DialogTitle>
+                    <DialogDescription>Upload a photo from your swimming meets or favorite anime moments</DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="photo-title">Title</Label>
+                      <Input
+                        id="photo-title"
+                        placeholder="My awesome photo..."
+                        value={newPhoto.title}
+                        onChange={(e) => setNewPhoto(prev => ({ ...prev, title: e.target.value }))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="photo-category">Category</Label>
+                      <Select
+                        value={newPhoto.category}
+                        onValueChange={(value: 'swimming' | 'anime') => 
+                          setNewPhoto(prev => ({ ...prev, category: value }))
+                        }
+                      >
+                        <SelectTrigger id="photo-category">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="swimming">Swimming</SelectItem>
+                          <SelectItem value="anime">Anime</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="photo-description">Description (optional)</Label>
+                      <Textarea
+                        id="photo-description"
+                        placeholder="Tell the story behind this photo..."
+                        value={newPhoto.description}
+                        onChange={(e) => setNewPhoto(prev => ({ ...prev, description: e.target.value }))}
+                        rows={3}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="photo-upload">Upload Image</Label>
+                      <Input
+                        id="photo-upload"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileUpload}
+                        className="cursor-pointer"
+                      />
+                      {newPhoto.url && (
+                        <div className="relative w-full h-32 rounded-lg overflow-hidden border-2 border-accent/50">
+                          <img 
+                            src={newPhoto.url} 
+                            alt="Preview" 
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsAddPhotoDialogOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleAddPhoto} className="bg-accent hover:bg-accent/90">
+                      <Upload size={18} className="mr-2" />
+                      Add Photo
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            {photos && photos.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {photos.map((photo) => (
+                  <Card key={photo.id} className="overflow-hidden">
+                    <div className="relative aspect-square">
+                      {photo.url.startsWith('data:') ? (
+                        <img 
+                          src={photo.url} 
+                          alt={photo.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
+                          <div className="text-6xl">
+                            {photo.category === 'swimming' ? '🏊' : '📺'}
+                          </div>
+                        </div>
+                      )}
+                      <Badge 
+                        className={`absolute top-2 right-2 ${
+                          photo.category === 'swimming' 
+                            ? 'bg-primary text-primary-foreground' 
+                            : 'bg-secondary text-secondary-foreground'
+                        }`}
+                      >
+                        {photo.category}
+                      </Badge>
+                    </div>
+                    <CardContent className="p-4 space-y-2">
+                      <h4 className="font-semibold line-clamp-1">{photo.title}</h4>
+                      {photo.description && (
+                        <p className="text-sm text-muted-foreground line-clamp-2">{photo.description}</p>
+                      )}
+                      <div className="flex gap-2 pt-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 gap-2"
+                          onClick={() => openEditPhotoDialog(photo)}
+                        >
+                          <PencilSimple size={16} />
+                          Edit
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="flex-1 gap-2"
+                          onClick={() => handleDeletePhoto(photo.id)}
+                        >
+                          <Trash size={16} />
+                          Delete
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card className="p-12 text-center border-2 border-dashed">
+                <div className="text-6xl mb-4">📸</div>
+                <p className="text-muted-foreground text-lg mb-2">No photos yet</p>
+                <p className="text-sm text-muted-foreground">Click "Add Photo" to upload your first photo!</p>
+              </Card>
+            )}
+
+            <Dialog open={isEditPhotoDialogOpen} onOpenChange={setIsEditPhotoDialogOpen}>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Edit Photo</DialogTitle>
+                  <DialogDescription>Update your photo details</DialogDescription>
+                </DialogHeader>
+                {editingPhoto && (
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-title">Title</Label>
+                      <Input
+                        id="edit-title"
+                        value={editingPhoto.title}
+                        onChange={(e) => setEditingPhoto(prev => prev ? { ...prev, title: e.target.value } : null)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-category">Category</Label>
+                      <Select
+                        value={editingPhoto.category}
+                        onValueChange={(value: 'swimming' | 'anime') => 
+                          setEditingPhoto(prev => prev ? { ...prev, category: value } : null)
+                        }
+                      >
+                        <SelectTrigger id="edit-category">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="swimming">Swimming</SelectItem>
+                          <SelectItem value="anime">Anime</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-description">Description</Label>
+                      <Textarea
+                        id="edit-description"
+                        value={editingPhoto.description || ''}
+                        onChange={(e) => setEditingPhoto(prev => prev ? { ...prev, description: e.target.value } : null)}
+                        rows={3}
+                      />
+                    </div>
+                    {editingPhoto.url.startsWith('data:') && (
+                      <div className="relative w-full h-32 rounded-lg overflow-hidden border-2">
+                        <img 
+                          src={editingPhoto.url} 
+                          alt="Preview" 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsEditPhotoDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleEditPhoto} className="bg-accent hover:bg-accent/90">
+                    Save Changes
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </TabsContent>
 
           <TabsContent value="about" className="space-y-6 mt-4">

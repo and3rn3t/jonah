@@ -1,16 +1,10 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, CaretLeft, CaretRight, Plus, Trash, PencilSimple, Upload } from '@phosphor-icons/react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { X, CaretLeft, CaretRight } from '@phosphor-icons/react'
+import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useKV } from '@github/spark/hooks'
-import { toast } from 'sonner'
 
 export interface Photo {
   id: string
@@ -20,24 +14,10 @@ export interface Photo {
   description?: string
 }
 
-interface PhotoGalleryProps {
-  isOwner?: boolean
-}
-
-export function PhotoGallery({ isOwner = false }: PhotoGalleryProps) {
-  const [photos, setPhotos] = useKV<Photo[]>('gallery-photos', [])
+export function PhotoGallery() {
+  const [photos] = useKV<Photo[]>('gallery-photos', [])
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null)
   const [filter, setFilter] = useState<'all' | 'swimming' | 'anime'>('all')
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-  const [editingPhoto, setEditingPhoto] = useState<Photo | null>(null)
-  
-  const [newPhoto, setNewPhoto] = useState({
-    title: '',
-    category: 'swimming' as 'swimming' | 'anime',
-    description: '',
-    url: ''
-  })
 
   const filteredPhotos = filter === 'all' 
     ? photos || []
@@ -65,190 +45,37 @@ export function PhotoGallery({ isOwner = false }: PhotoGalleryProps) {
     if (e.key === 'Escape') setSelectedPhoto(null)
   }
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please upload an image file')
-      return
-    }
-
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      setNewPhoto(prev => ({ ...prev, url: reader.result as string }))
-    }
-    reader.readAsDataURL(file)
-  }
-
-  const handleAddPhoto = () => {
-    if (!newPhoto.title || !newPhoto.url) {
-      toast.error('Please provide a title and upload an image')
-      return
-    }
-
-    const photo: Photo = {
-      id: Date.now().toString(),
-      title: newPhoto.title,
-      category: newPhoto.category,
-      description: newPhoto.description || undefined,
-      url: newPhoto.url
-    }
-
-    setPhotos(currentPhotos => [...(currentPhotos || []), photo])
-    toast.success('Photo added successfully! 📸')
-    
-    setNewPhoto({ title: '', category: 'swimming', description: '', url: '' })
-    setIsAddDialogOpen(false)
-  }
-
-  const handleEditPhoto = () => {
-    if (!editingPhoto) return
-
-    setPhotos(currentPhotos => 
-      (currentPhotos || []).map(p => 
-        p.id === editingPhoto.id ? editingPhoto : p
-      )
-    )
-    
-    toast.success('Photo updated successfully! ✨')
-    setEditingPhoto(null)
-    setIsEditDialogOpen(false)
-  }
-
-  const handleDeletePhoto = (photoId: string) => {
-    setPhotos(currentPhotos => 
-      (currentPhotos || []).filter(p => p.id !== photoId)
-    )
-    toast.success('Photo deleted')
-    setSelectedPhoto(null)
-  }
-
-  const openEditDialog = (photo: Photo) => {
-    setEditingPhoto({ ...photo })
-    setIsEditDialogOpen(true)
-  }
-
   return (
     <>
-      <div className="flex flex-wrap gap-3 mb-8 justify-center items-center">
-        <div className="flex gap-3">
-          <Button
-            variant={filter === 'all' ? 'default' : 'outline'}
-            onClick={() => setFilter('all')}
-            className={filter === 'all' ? 'bg-accent hover:bg-accent/90' : ''}
-          >
-            All Photos
-          </Button>
-          <Button
-            variant={filter === 'swimming' ? 'default' : 'outline'}
-            onClick={() => setFilter('swimming')}
-            className={filter === 'swimming' ? 'bg-primary hover:bg-primary/90' : ''}
-          >
-            Swimming
-          </Button>
-          <Button
-            variant={filter === 'anime' ? 'default' : 'outline'}
-            onClick={() => setFilter('anime')}
-            className={filter === 'anime' ? 'bg-secondary hover:bg-secondary/90 text-secondary-foreground' : ''}
-          >
-            Anime
-          </Button>
-        </div>
-
-        {isOwner && (
-          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-accent hover:bg-accent/90 gap-2">
-                <Plus size={20} weight="bold" />
-                Add Photo
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle>Add New Photo</DialogTitle>
-                <DialogDescription>Upload a photo from your swimming meets or favorite anime moments</DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="photo-title">Title</Label>
-                  <Input
-                    id="photo-title"
-                    placeholder="My awesome photo..."
-                    value={newPhoto.title}
-                    onChange={(e) => setNewPhoto(prev => ({ ...prev, title: e.target.value }))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="photo-category">Category</Label>
-                  <Select
-                    value={newPhoto.category}
-                    onValueChange={(value: 'swimming' | 'anime') => 
-                      setNewPhoto(prev => ({ ...prev, category: value }))
-                    }
-                  >
-                    <SelectTrigger id="photo-category">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="swimming">Swimming</SelectItem>
-                      <SelectItem value="anime">Anime</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="photo-description">Description (optional)</Label>
-                  <Textarea
-                    id="photo-description"
-                    placeholder="Tell the story behind this photo..."
-                    value={newPhoto.description}
-                    onChange={(e) => setNewPhoto(prev => ({ ...prev, description: e.target.value }))}
-                    rows={3}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="photo-upload">Upload Image</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="photo-upload"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileUpload}
-                      className="cursor-pointer"
-                    />
-                  </div>
-                  {newPhoto.url && (
-                    <div className="relative w-full h-32 rounded-lg overflow-hidden border-2 border-accent/50">
-                      <img 
-                        src={newPhoto.url} 
-                        alt="Preview" 
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleAddPhoto} className="bg-accent hover:bg-accent/90">
-                  <Upload size={18} className="mr-2" />
-                  Add Photo
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        )}
+      <div className="flex gap-3 mb-8 justify-center">
+        <Button
+          variant={filter === 'all' ? 'default' : 'outline'}
+          onClick={() => setFilter('all')}
+          className={filter === 'all' ? 'bg-accent hover:bg-accent/90' : ''}
+        >
+          All Photos
+        </Button>
+        <Button
+          variant={filter === 'swimming' ? 'default' : 'outline'}
+          onClick={() => setFilter('swimming')}
+          className={filter === 'swimming' ? 'bg-primary hover:bg-primary/90' : ''}
+        >
+          Swimming
+        </Button>
+        <Button
+          variant={filter === 'anime' ? 'default' : 'outline'}
+          onClick={() => setFilter('anime')}
+          className={filter === 'anime' ? 'bg-secondary hover:bg-secondary/90 text-secondary-foreground' : ''}
+        >
+          Anime
+        </Button>
       </div>
 
       {filteredPhotos.length === 0 && (
         <Card className="p-12 text-center border-2 border-dashed">
           <div className="text-6xl mb-4">📸</div>
           <p className="text-muted-foreground text-lg mb-2">No photos yet</p>
-          {isOwner && (
-            <p className="text-sm text-muted-foreground">Click "Add Photo" to upload your first photo!</p>
-          )}
+          <p className="text-sm text-muted-foreground">Check back soon for photos!</p>
         </Card>
       )}
 
@@ -296,32 +123,6 @@ export function PhotoGallery({ isOwner = false }: PhotoGalleryProps) {
                 >
                   {photo.category}
                 </Badge>
-                {isOwner && (
-                  <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex gap-1">
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      className="h-8 w-8 bg-white/90 hover:bg-white"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        openEditDialog(photo)
-                      }}
-                    >
-                      <PencilSimple size={16} />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="destructive"
-                      className="h-8 w-8"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleDeletePhoto(photo.id)
-                      }}
-                    >
-                      <Trash size={16} />
-                    </Button>
-                  </div>
-                )}
               </Card>
             </motion.div>
           ))}
@@ -416,30 +217,7 @@ export function PhotoGallery({ isOwner = false }: PhotoGalleryProps) {
                   {selectedPhoto.description && (
                     <p className="text-muted-foreground mb-4">{selectedPhoto.description}</p>
                   )}
-                  {isOwner && (
-                    <div className="flex gap-2 mt-4 pt-4 border-t">
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          openEditDialog(selectedPhoto)
-                          setSelectedPhoto(null)
-                        }}
-                        className="gap-2"
-                      >
-                        <PencilSimple size={18} />
-                        Edit
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        onClick={() => handleDeletePhoto(selectedPhoto.id)}
-                        className="gap-2"
-                      >
-                        <Trash size={18} />
-                        Delete
-                      </Button>
-                    </div>
-                  )}
-                  <div className="mt-4 flex gap-2 md:hidden">
+                  <div className="flex gap-2 md:hidden">
                     <Button
                       variant="outline"
                       onClick={handlePrevious}
@@ -465,70 +243,6 @@ export function PhotoGallery({ isOwner = false }: PhotoGalleryProps) {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {isOwner && editingPhoto && (
-        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>Edit Photo</DialogTitle>
-              <DialogDescription>Update your photo details</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="edit-title">Title</Label>
-                <Input
-                  id="edit-title"
-                  value={editingPhoto.title}
-                  onChange={(e) => setEditingPhoto(prev => prev ? { ...prev, title: e.target.value } : null)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-category">Category</Label>
-                <Select
-                  value={editingPhoto.category}
-                  onValueChange={(value: 'swimming' | 'anime') => 
-                    setEditingPhoto(prev => prev ? { ...prev, category: value } : null)
-                  }
-                >
-                  <SelectTrigger id="edit-category">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="swimming">Swimming</SelectItem>
-                    <SelectItem value="anime">Anime</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-description">Description</Label>
-                <Textarea
-                  id="edit-description"
-                  value={editingPhoto.description || ''}
-                  onChange={(e) => setEditingPhoto(prev => prev ? { ...prev, description: e.target.value } : null)}
-                  rows={3}
-                />
-              </div>
-              {editingPhoto.url.startsWith('data:') && (
-                <div className="relative w-full h-32 rounded-lg overflow-hidden border-2">
-                  <img 
-                    src={editingPhoto.url} 
-                    alt="Preview" 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleEditPhoto} className="bg-accent hover:bg-accent/90">
-                Save Changes
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
     </>
   )
 }
