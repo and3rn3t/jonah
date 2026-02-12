@@ -1,5 +1,5 @@
 import { motion, Variants } from 'framer-motion'
-import { Television, Waves, User, Star, Trophy, Clock, DiscordLogo, InstagramLogo, TwitchLogo, YoutubeLogo, PaperPlaneTilt, Images, XLogo, TiktokLogo, Envelope, Bell, ChartLineUp } from '@phosphor-icons/react'
+import { Television, Waves, User, Star, Trophy, Clock, DiscordLogo, InstagramLogo, TwitchLogo, YoutubeLogo, PaperPlaneTilt, Images, XLogo, TiktokLogo, Envelope, Bell, ChartLineUp, ChartBar } from '@phosphor-icons/react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -14,6 +14,7 @@ import { PhotoGallery } from '@/components/PhotoGallery'
 import { AdminPanel } from '@/components/AdminPanel'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { SwimmingTimeline } from '@/components/SwimmingTimeline'
+import { StatsDashboard } from '@/components/StatsDashboard'
 import { useKV } from '@github/spark/hooks'
 import type { SiteContent, ContactMessage } from '@/lib/types'
 
@@ -544,6 +545,24 @@ Create a concise, friendly email notification (subject and body) that informs th
                   </CardContent>
                 </Card>
               </motion.div>
+            </motion.div>
+          </div>
+        </section>
+
+        <Separator className="max-w-6xl mx-auto" />
+
+        <section className="py-12 md:py-20 px-4">
+          <div className="max-w-6xl mx-auto">
+            <motion.div variants={itemVariants} className="mb-8 md:mb-12">
+              <div className="flex items-center gap-3 mb-3">
+                <ChartBar size={32} weight="duotone" className="text-accent" />
+                <h2 className="text-3xl md:text-4xl font-bold">Performance Stats</h2>
+              </div>
+              <p className="text-muted-foreground">Track your improvements and analyze your progress</p>
+            </motion.div>
+
+            <motion.div variants={itemVariants}>
+              <StatsDashboard events={content?.timeline || []} />
             </motion.div>
           </div>
         </section>
