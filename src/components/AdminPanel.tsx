@@ -63,9 +63,9 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
   const handleOpenChange = (open: boolean) => {
     if (open && !isUnlocked) {
       setShowPasswordDialog(true)
-    } else if (!open) {
-      setIsOpen(false)
+      return
     }
+    setIsOpen(open)
   }
 
   const handleSave = () => {
