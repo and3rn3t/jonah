@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { PhotoGallery } from '@/components/PhotoGallery'
 
@@ -17,6 +17,19 @@ function App() {
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isOwner, setIsOwner] = useState(false)
+
+  useEffect(() => {
+    const checkOwnership = async () => {
+      try {
+        const user = await window.spark.user()
+        setIsOwner(user?.isOwner || false)
+      } catch {
+        setIsOwner(false)
+      }
+    }
+    checkOwnership()
+  }, [])
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -131,93 +144,6 @@ function App() {
   const favoriteStrokes = ["Freestyle", "Butterfly", "Backstroke"]
   
   const hobbies = ["Gaming", "Drawing", "Reading Manga", "Listening to Music"]
-
-  const galleryPhotos = [
-    {
-      id: 1,
-      url: '/placeholder-swimming-1.jpg',
-      title: 'Regional Championship - 100m Freestyle',
-      category: 'swimming' as const,
-      description: 'My best race ever! Set a new personal record of 58.4s'
-    },
-    {
-      id: 2,
-      url: '/placeholder-anime-1.jpg',
-      title: 'Demon Slayer - Epic Battle Scene',
-      category: 'anime' as const,
-      description: 'One of the most intense fights in the series!'
-    },
-    {
-      id: 3,
-      url: '/placeholder-swimming-2.jpg',
-      title: 'Team Relay Victory',
-      category: 'swimming' as const,
-      description: 'We won first place in the 4x100m relay!'
-    },
-    {
-      id: 4,
-      url: '/placeholder-anime-2.jpg',
-      title: 'My Hero Academia - All Might',
-      category: 'anime' as const,
-      description: 'The Symbol of Peace in his prime! So inspiring!'
-    },
-    {
-      id: 5,
-      url: '/placeholder-swimming-3.jpg',
-      title: 'Butterfly Stroke Practice',
-      category: 'swimming' as const,
-      description: 'Working on my technique for the next meet'
-    },
-    {
-      id: 6,
-      url: '/placeholder-anime-3.jpg',
-      title: 'Attack on Titan - Scout Regiment',
-      category: 'anime' as const,
-      description: 'The best squad ready for action'
-    },
-    {
-      id: 7,
-      url: '/placeholder-swimming-4.jpg',
-      title: 'State Championships Medal',
-      category: 'swimming' as const,
-      description: 'Proud moment receiving my medal!'
-    },
-    {
-      id: 8,
-      url: '/placeholder-anime-4.jpg',
-      title: 'Jujutsu Kaisen - Domain Expansion',
-      category: 'anime' as const,
-      description: 'The animation on these scenes is absolutely insane'
-    },
-    {
-      id: 9,
-      url: '/placeholder-swimming-5.jpg',
-      title: 'Morning Training Session',
-      category: 'swimming' as const,
-      description: 'Early bird gets the gold! 5 AM practice'
-    },
-    {
-      id: 10,
-      url: '/placeholder-anime-5.jpg',
-      title: 'Demon Slayer - Hashira Meeting',
-      category: 'anime' as const,
-      description: 'All the Hashira together - so cool!'
-    },
-    {
-      id: 11,
-      url: '/placeholder-swimming-6.jpg',
-      title: 'Backstroke Personal Best',
-      category: 'swimming' as const,
-      description: 'Finally broke the 1 minute barrier!'
-    },
-    {
-      id: 12,
-      url: '/placeholder-anime-6.jpg',
-      title: 'My Hero Academia - Class 1-A',
-      category: 'anime' as const,
-      description: 'The whole class together, my favorites!'
-    }
-  ]
 
   return (
     <div className="min-h-screen gradient-mesh">
@@ -367,7 +293,7 @@ function App() {
             </motion.div>
 
             <motion.div variants={itemVariants}>
-              <PhotoGallery photos={galleryPhotos} />
+              <PhotoGallery isOwner={isOwner} />
             </motion.div>
           </div>
         </section>

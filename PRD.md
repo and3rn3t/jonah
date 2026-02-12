@@ -7,8 +7,8 @@ A vibrant personal web page showcasing a 14-year-old's passions for anime and sw
 2. **Personal** - Content should feel authentic and genuine, like a digital space that truly belongs to the owner.
 3. **Expressive** - Visual elements should celebrate both anime culture and athletic achievement without compromise.
 
-**Complexity Level**: Content Showcase (information-focused)
-  - This is primarily an informational personal page that presents content about interests, hobbies, and personality without complex interactive features.
+**Complexity Level**: Light Application (multiple features with basic state)
+  - This personal page now includes photo management capabilities with persistent storage, allowing the owner to upload, edit, and delete their own photos through the interface.
 
 ## Essential Features
 
@@ -41,11 +41,11 @@ A vibrant personal web page showcasing a 14-year-old's passions for anime and sw
 - Success criteria: Visitor gets a well-rounded sense of personality and interests
 
 **Photo Gallery Section**
-- Functionality: Display filterable photo grid showcasing swimming meet photos and anime screenshots with lightbox modal
-- Purpose: Visual storytelling through favorite moments and screenshots
-- Trigger: User scrolls to gallery section, clicks filter buttons or photos
-- Progression: Scroll into view → Gallery displays → User filters by category → Clicks photo → Lightbox opens with full view → Navigate with arrows or keyboard → Close to return
-- Success criteria: Photos are displayed in organized grid, filters work smoothly, lightbox provides immersive viewing experience
+- Functionality: Display filterable photo grid showcasing swimming meet photos and anime screenshots with lightbox modal; allows owner to upload, edit, and delete photos
+- Purpose: Visual storytelling through favorite moments and screenshots, with full content management capabilities
+- Trigger: User scrolls to gallery section, clicks filter buttons or photos; owner clicks "Add Photo" button to upload new photos
+- Progression: Scroll into view → Gallery displays → User filters by category → Clicks photo → Lightbox opens with full view → Navigate with arrows or keyboard → Close to return; Owner opens upload dialog → Selects image file → Fills in title, category, description → Submits to add photo; Owner hovers photo → Clicks edit/delete icons → Updates details or removes photo
+- Success criteria: Photos are displayed in organized grid, filters work smoothly, lightbox provides immersive viewing experience, owner can upload images from device, edit photo metadata, delete unwanted photos, all data persists between sessions
 
 **Social Media Links & Contact Form**
 - Functionality: Display social media profiles and provide message form
@@ -55,12 +55,16 @@ A vibrant personal web page showcasing a 14-year-old's passions for anime and sw
 - Success criteria: Social links are clearly visible, form validates input and shows success message
 
 ## Edge Case Handling
-- **Empty State**: If no content exists, display placeholder content that fits the theme
+- **Empty Gallery State**: If no photos exist, display helpful empty state with prompt to add photos (for owners) or simple message (for visitors)
+- **Photo Upload Validation**: Only image files are accepted for upload; shows error toast for invalid file types
+- **Large Image Files**: Files are converted to base64 data URLs for storage in KV persistence
 - **Long Text**: Descriptions are truncated with proper ellipsis handling to maintain layout
-- **Image Loading**: Graceful fallbacks with background colors and emoji placeholders if images fail to load
+- **Image Display**: Real uploaded photos display as actual images; placeholder photos show emoji icons
 - **Mobile Viewing**: Content reflows naturally for smaller screens without horizontal scroll
-- **Gallery Filtering**: Smooth animations when switching between photo categories
+- **Gallery Filtering**: Smooth animations when switching between photo categories; filter state maintained when adding/removing photos
 - **Keyboard Navigation**: Gallery lightbox supports arrow keys and escape key for accessibility
+- **Owner Detection**: Edit/delete controls only visible to page owner; add photo button only appears for owner
+- **Persistence**: All photo data stored in KV storage and survives page refreshes
 
 ## Design Direction
 
@@ -134,6 +138,10 @@ Animations should feel lively and expressive without being overwhelming - think 
   - Images: For photo gallery section header
   - CaretLeft/CaretRight: For photo navigation in lightbox
   - X: For closing lightbox modal
+  - Plus: For adding new photos (owner only)
+  - Trash: For deleting photos (owner only)
+  - PencilSimple: For editing photos (owner only)
+  - Upload: For upload action in dialog
   - Social icons: Discord, Instagram, Twitch, YouTube
   - PaperPlaneTilt: For contact/messaging
   
