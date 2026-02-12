@@ -60,12 +60,18 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
     }
   }
 
-  const handleOpenChange = (open: boolean) => {
-    if (open && !isUnlocked) {
+  const handleGearClick = () => {
+    if (!isUnlocked) {
       setShowPasswordDialog(true)
-      return
+    } else {
+      setIsOpen(true)
     }
-    setIsOpen(open)
+  }
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      setIsOpen(false)
+    }
   }
 
   const handleSave = () => {
@@ -351,21 +357,19 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogTrigger asChild>
-          <Button 
-            className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl bg-accent hover:bg-accent/90 z-40 relative"
-            size="icon"
-            onClick={() => handleOpenChange(true)}
-          >
-            <Gear size={24} weight="bold" />
-            {unreadCount > 0 && (
-              <Badge className="absolute -top-1 -right-1 h-6 w-6 flex items-center justify-center p-0 bg-destructive text-destructive-foreground rounded-full border-2 border-background">
-                {unreadCount}
-              </Badge>
-            )}
-          </Button>
-        </DialogTrigger>
+      <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+        <Button 
+          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl bg-accent hover:bg-accent/90 z-40 relative"
+          size="icon"
+          onClick={handleGearClick}
+        >
+          <Gear size={24} weight="bold" />
+          {unreadCount > 0 && (
+            <Badge className="absolute -top-1 -right-1 h-6 w-6 flex items-center justify-center p-0 bg-destructive text-destructive-foreground rounded-full border-2 border-background">
+              {unreadCount}
+            </Badge>
+          )}
+        </Button>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-2xl flex items-center gap-2">
