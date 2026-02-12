@@ -1,11 +1,22 @@
 import { motion, Variants } from 'framer-motion'
-import { Television, Waves, User, Star, Trophy, Clock } from '@phosphor-icons/react'
+import { Television, Waves, User, Star, Trophy, Clock, DiscordLogo, InstagramLogo, TwitchLogo, YoutubeLogo, PaperPlaneTilt } from '@phosphor-icons/react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
+import { useState } from 'react'
+import { toast } from 'sonner'
 
 function App() {
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [message, setMessage] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
@@ -26,6 +37,50 @@ function App() {
       }
     }
   }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+
+    await new Promise(resolve => setTimeout(resolve, 1000))
+
+    toast.success('Message sent! I\'ll get back to you soon! 🎉')
+    setName('')
+    setEmail('')
+    setMessage('')
+    setIsSubmitting(false)
+  }
+
+  const socialLinks = [
+    {
+      name: 'Discord',
+      icon: DiscordLogo,
+      username: 'AlexSwims#1234',
+      color: 'hover:bg-[#5865F2] hover:text-white',
+      bgColor: 'bg-[#5865F2]/10'
+    },
+    {
+      name: 'Instagram',
+      icon: InstagramLogo,
+      username: '@alexswims_anime',
+      color: 'hover:bg-gradient-to-tr hover:from-[#f9ce34] hover:via-[#ee2a7b] hover:to-[#6228d7] hover:text-white',
+      bgColor: 'bg-gradient-to-tr from-[#f9ce34]/10 via-[#ee2a7b]/10 to-[#6228d7]/10'
+    },
+    {
+      name: 'Twitch',
+      icon: TwitchLogo,
+      username: 'alexswims',
+      color: 'hover:bg-[#9146FF] hover:text-white',
+      bgColor: 'bg-[#9146FF]/10'
+    },
+    {
+      name: 'YouTube',
+      icon: YoutubeLogo,
+      username: '@AlexSwimming',
+      color: 'hover:bg-[#FF0000] hover:text-white',
+      bgColor: 'bg-[#FF0000]/10'
+    }
+  ]
 
   const animeList = [
     {
@@ -265,6 +320,124 @@ function App() {
                 </CardContent>
               </Card>
             </motion.div>
+          </div>
+        </section>
+
+        <Separator className="max-w-6xl mx-auto" />
+
+        <section className="py-12 md:py-20 px-4">
+          <div className="max-w-6xl mx-auto">
+            <motion.div variants={itemVariants} className="mb-8 md:mb-12 text-center">
+              <div className="flex items-center justify-center gap-3 mb-3">
+                <PaperPlaneTilt size={32} weight="duotone" className="text-accent" />
+                <h2 className="text-3xl md:text-4xl font-bold">Let's Connect!</h2>
+              </div>
+              <p className="text-muted-foreground">Find me on social media or send me a message</p>
+            </motion.div>
+
+            <div className="grid lg:grid-cols-2 gap-8">
+              <motion.div variants={itemVariants}>
+                <Card className="h-full border-2">
+                  <CardHeader>
+                    <CardTitle className="text-2xl">Social Media</CardTitle>
+                    <CardDescription>Let's be friends online!</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {socialLinks.map((social, index) => {
+                      const Icon = social.icon
+                      return (
+                        <motion.div
+                          key={index}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <Button
+                            variant="outline"
+                            className={`w-full justify-start gap-3 h-auto py-4 transition-all duration-300 ${social.color} ${social.bgColor}`}
+                          >
+                            <Icon size={24} weight="fill" />
+                            <div className="text-left">
+                              <div className="font-semibold">{social.name}</div>
+                              <div className="text-sm opacity-80">{social.username}</div>
+                            </div>
+                          </Button>
+                        </motion.div>
+                      )
+                    })}
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              <motion.div variants={itemVariants}>
+                <Card className="h-full border-2">
+                  <CardHeader>
+                    <CardTitle className="text-2xl">Send a Message</CardTitle>
+                    <CardDescription>Want to chat? Drop me a message!</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Your Name</Label>
+                        <Input
+                          id="name"
+                          placeholder="What should I call you?"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          required
+                          className="border-2 focus:border-accent"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Your Email</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="your.email@example.com"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                          className="border-2 focus:border-accent"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="message">Message</Label>
+                        <Textarea
+                          id="message"
+                          placeholder="Tell me what's up! Want to talk anime? Swimming tips? Gaming?"
+                          value={message}
+                          onChange={(e) => setMessage(e.target.value)}
+                          required
+                          rows={5}
+                          className="border-2 focus:border-accent resize-none"
+                        />
+                      </div>
+                      <Button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-semibold"
+                      >
+                        {isSubmitting ? (
+                          <span className="flex items-center gap-2">
+                            <motion.div
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            >
+                              <PaperPlaneTilt size={20} />
+                            </motion.div>
+                            Sending...
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-2">
+                            <PaperPlaneTilt size={20} />
+                            Send Message
+                          </span>
+                        )}
+                      </Button>
+                    </form>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
           </div>
         </section>
 
