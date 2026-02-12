@@ -101,6 +101,105 @@ const defaultContent: SiteContent = {
   timeline: [
     {
       id: '1',
+      date: new Date('2024-12-08').getTime(),
+      eventType: 'personal-best',
+      title: '50m Freestyle Personal Best',
+      stroke: '50m Freestyle',
+      time: '26.1s',
+      previousTime: '27.3s',
+      location: 'Winter Championship Trials',
+      description: 'Absolutely crushed my previous record! Sprint training has been paying off big time.',
+      placement: '1st Place'
+    },
+    {
+      id: '2',
+      date: new Date('2024-11-22').getTime(),
+      eventType: 'competition',
+      title: 'Thanksgiving Classic Meet',
+      stroke: '100m Butterfly',
+      time: '1:04.8s',
+      location: 'Metro Aquatic Complex',
+      description: 'First time competing in 100m fly - it was tough but I loved the challenge!',
+      placement: '4th Place'
+    },
+    {
+      id: '3',
+      date: new Date('2024-10-30').getTime(),
+      eventType: 'milestone',
+      title: 'Team Captain Announcement',
+      stroke: 'All Strokes',
+      time: 'N/A',
+      location: 'City Swim Club',
+      description: 'Got selected as one of the team captains for the winter season! So honored and ready to lead by example.'
+    },
+    {
+      id: '4',
+      date: new Date('2024-09-18').getTime(),
+      eventType: 'personal-best',
+      title: '200m Freestyle New Record',
+      stroke: '200m Freestyle',
+      time: '2:05.3s',
+      previousTime: '2:12.1s',
+      location: 'Fall Season Opener',
+      description: 'Nearly 7 seconds off my previous time! Endurance training is really working.',
+      placement: '2nd Place'
+    },
+    {
+      id: '5',
+      date: new Date('2024-08-12').getTime(),
+      eventType: 'training',
+      title: 'Summer Training Camp Graduation',
+      stroke: 'All Strokes',
+      time: 'N/A',
+      location: 'Elite Swimming Academy',
+      description: 'Completed 2-week intensive training camp. Learned advanced techniques and made friends from other teams!'
+    },
+    {
+      id: '6',
+      date: new Date('2024-07-04').getTime(),
+      eventType: 'competition',
+      title: 'Independence Day Invitational',
+      stroke: '50m Backstroke',
+      time: '32.7s',
+      location: 'Community Pool',
+      description: 'Fun meet on the 4th of July. Backstroke isn\'t my strongest but improving every time!',
+      placement: '5th Place'
+    },
+    {
+      id: '7',
+      date: new Date('2024-05-25').getTime(),
+      eventType: 'personal-best',
+      title: '100m Breaststroke Breakthrough',
+      stroke: '100m Breaststroke',
+      time: '1:14.2s',
+      previousTime: '1:19.8s',
+      location: 'Spring Championships',
+      description: 'Finally getting the hang of breaststroke technique. Over 5 seconds faster!',
+      placement: '3rd Place'
+    },
+    {
+      id: '8',
+      date: new Date('2024-04-10').getTime(),
+      eventType: 'milestone',
+      title: '4x100m Relay Team Record',
+      stroke: 'Freestyle Relay',
+      time: '3:42.1s',
+      location: 'Regional Team Meet',
+      description: 'Our relay team set a new club record! Amazing feeling to achieve this with my teammates.',
+      placement: '1st Place'
+    },
+    {
+      id: '9',
+      date: new Date('2024-03-02').getTime(),
+      eventType: 'training',
+      title: 'Flip Turn Mastery',
+      stroke: 'All Strokes',
+      time: 'N/A',
+      location: 'Team Practice',
+      description: 'Coach says my flip turns are finally competition-ready. Those underwater drills were brutal but worth it!'
+    },
+    {
+      id: '10',
       date: new Date('2024-01-15').getTime(),
       eventType: 'personal-best',
       title: '100m Freestyle Personal Best',
@@ -112,7 +211,7 @@ const defaultContent: SiteContent = {
       placement: '2nd Place'
     },
     {
-      id: '2',
+      id: '11',
       date: new Date('2023-11-20').getTime(),
       eventType: 'competition',
       title: 'Regional Championships',
@@ -123,7 +222,7 @@ const defaultContent: SiteContent = {
       placement: '1st Place'
     },
     {
-      id: '3',
+      id: '12',
       date: new Date('2023-09-10').getTime(),
       eventType: 'milestone',
       title: 'First Sub-60 Second 100m Freestyle',
@@ -134,7 +233,7 @@ const defaultContent: SiteContent = {
       description: 'Finally broke the 1-minute barrier! This has been my goal for months.'
     },
     {
-      id: '4',
+      id: '13',
       date: new Date('2023-06-05').getTime(),
       eventType: 'competition',
       title: 'Summer Invitational',
@@ -145,7 +244,7 @@ const defaultContent: SiteContent = {
       placement: '3rd Place'
     },
     {
-      id: '5',
+      id: '14',
       date: new Date('2023-03-15').getTime(),
       eventType: 'training',
       title: 'Technique Breakthrough',
@@ -155,7 +254,7 @@ const defaultContent: SiteContent = {
       description: 'Coach helped me fix my butterfly technique. Starting to feel much more efficient in the water.'
     },
     {
-      id: '6',
+      id: '15',
       date: new Date('2023-01-08').getTime(),
       eventType: 'milestone',
       title: 'Joined Competitive Swim Team',
