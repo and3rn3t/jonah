@@ -9,10 +9,10 @@ import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Plus, Trash, PencilSimple, FloppyDisk, Gear, X, Star, Clock, LockKey, Eye, EyeSlash } from '@phosphor-icons/react'
+import { Plus, Trash, PencilSimple, FloppyDisk, Gear, X, Star, Clock, LockKey, Eye, EyeSlash, Envelope } from '@phosphor-icons/react'
 import { useKV } from '@github/spark/hooks'
 import { toast } from 'sonner'
-import type { SiteContent } from '@/lib/types'
+import type { SiteContent, ContactMessage } from '@/lib/types'
 
 interface AdminPanelProps {
   content: SiteContent
@@ -27,6 +27,14 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
   const [showPassword, setShowPassword] = useState(false)
   const [adminPassword, setAdminPassword] = useKV<string>('admin-password', 'admin123')
   const [localContent, setLocalContent] = useState<SiteContent>(content)
+  const [messages, setMessages] = useKV<ContactMessage[]>('contact-messages', [])
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  const unreadMessages = (messages || []).filter(msg => !msg.read)
+  
+  if (unreadMessages.length !== unreadCount) {
+    setUnreadCount(unreadMessages.length)
+  }
 
   const handlePasswordSubmit = () => {
     if (passwordInput === adminPassword) {
@@ -184,6 +192,26 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
     }))
   }
 
+  const markMessageAsRead = (messageId: string) => {
+    setMessages((currentMessages) =>
+      (currentMessages || []).map(msg =>
+        msg.id === messageId ? { ...msg, read: true } : msg
+      )
+    )
+  }
+
+  const deleteMessage = (messageId: string) => {
+    setMessages((currentMessages) =>
+      (currentMessages || []).filter(msg => msg.id !== messageId)
+    )
+    toast.success('Message deleted')
+  }
+
+  const formatTimestamp = (timestamp: number) => {
+    const date = new Date(timestamp)
+    return date.toLocaleString()
+  }
+
   return (
     <>
       <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
@@ -252,11 +280,16 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
           <Button 
-            className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl bg-accent hover:bg-accent/90 z-40"
+            className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl bg-accent hover:bg-accent/90 z-40 relative"
             size="icon"
             onClick={() => handleOpenChange(true)}
           >
             <Gear size={24} weight="bold" />
+            {unreadCount > 0 && (
+              <Badge className="absolute -top-1 -right-1 h-6 w-6 flex items-center justify-center p-0 bg-destructive text-destructive-foreground rounded-full border-2 border-background">
+                {unreadCount}
+              </Badge>
+            )}
           </Button>
         </DialogTrigger>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -271,12 +304,20 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
           </DialogHeader>
 
           <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-7">
               <TabsTrigger value="profile">Profile</TabsTrigger>
               <TabsTrigger value="anime">Anime</TabsTrigger>
               <TabsTrigger value="swimming">Swimming</TabsTrigger>
               <TabsTrigger value="about">About</TabsTrigger>
               <TabsTrigger value="social">Social</TabsTrigger>
+              <TabsTrigger value="messages" className="relative">
+                Messages
+                {unreadCount > 0 && (
+                  <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-destructive text-destructive-foreground text-xs rounded-full">
+                    {unreadCount}
+                  </Badge>
+                )}
+              </TabsTrigger>
               <TabsTrigger value="settings">Settings</TabsTrigger>
             </TabsList>
 
@@ -653,6 +694,76 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
                 </Card>
               ))}
             </div>
+          </TabsContent>
+
+          <TabsContent value="messages" className="space-y-4 mt-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <Envelope size={24} weight="duotone" className="text-accent" />
+                  Contact Messages
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {unreadCount > 0 ? `${unreadCount} unread message${unreadCount === 1 ? '' : 's'}` : 'All caught up!'}
+                </p>
+              </div>
+            </div>
+
+            {messages && messages.length > 0 ? (
+              <div className="space-y-4">
+                {[...messages].reverse().map((msg) => (
+                  <Card key={msg.id} className={`${!msg.read ? 'border-2 border-accent/50 bg-accent/5' : ''}`}>
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <CardTitle className="flex items-center gap-2">
+                            {msg.name}
+                            {!msg.read && (
+                              <Badge className="bg-accent text-accent-foreground">New</Badge>
+                            )}
+                          </CardTitle>
+                          <CardDescription className="mt-1">
+                            <a href={`mailto:${msg.email}`} className="hover:underline text-primary">
+                              {msg.email}
+                            </a>
+                          </CardDescription>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {formatTimestamp(msg.timestamp)}
+                          </p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => deleteMessage(msg.id)}
+                        >
+                          <Trash size={16} />
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
+                      {!msg.read && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="mt-4"
+                          onClick={() => markMessageAsRead(msg.id)}
+                        >
+                          Mark as Read
+                        </Button>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card className="p-12 text-center border-2 border-dashed">
+                <div className="text-6xl mb-4">📭</div>
+                <p className="text-muted-foreground text-lg mb-2">No messages yet</p>
+                <p className="text-sm text-muted-foreground">Messages from your contact form will appear here</p>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-4 mt-4">

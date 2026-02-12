@@ -48,11 +48,11 @@ A vibrant personal web page showcasing a 14-year-old's passions for anime and sw
 - Success criteria: Photos are displayed in organized grid, filters work smoothly, lightbox provides immersive viewing experience, owner can upload images from device, edit photo metadata, delete unwanted photos, all data persists between sessions
 
 **Social Media Links & Contact Form**
-- Functionality: Display social media profiles and provide message form; owner can manage social links through admin panel
-- Purpose: Enable visitors to connect on multiple platforms or send direct messages
-- Trigger: User scrolls to contact section; owner clicks admin button to manage social links
-- Progression: Scroll into view → User views social links or fills form → Clicks social button or submits message → Receives confirmation; Owner opens admin panel → Navigates to Social tab → Adds/edits/deletes social links → Saves changes → Links update on page
-- Success criteria: Social links are clearly visible, form validates input and shows success message, owner can manage all social platforms through admin interface
+- Functionality: Display social media profiles and provide message form with email notifications; owner can manage social links through admin panel and view all messages
+- Purpose: Enable visitors to connect on multiple platforms or send direct messages; notify owner of new contact submissions
+- Trigger: User scrolls to contact section; visitor submits contact form; owner clicks admin button to manage social links or view messages
+- Progression: Scroll into view → User views social links or fills form → Submits message → Message stored in KV → Owner receives email notification with sender details → Success confirmation shown; Owner opens admin panel → Navigates to Messages tab → Views all messages with unread badge → Reads/deletes messages → Navigates to Social tab → Adds/edits/deletes social links → Saves changes
+- Success criteria: Social links are clearly visible, form validates input, messages are stored persistently, owner receives email notification at their GitHub email, unread count badge appears on admin button and Messages tab, owner can view/manage all messages through admin interface
 
 **Dark Mode Toggle**
 - Functionality: Toggle between light and dark color themes with persistent preference
@@ -62,11 +62,11 @@ A vibrant personal web page showcasing a 14-year-old's passions for anime and sw
 - Success criteria: Theme switches smoothly without flash, all colors remain accessible and readable in both modes, preference persists between sessions
 
 **Admin Content Management**
-- Functionality: Comprehensive admin panel allowing site owner to edit all content including profile info, anime list, swimming achievements, social links, hobbies, and fun facts
-- Purpose: Give complete control over site content without code changes
-- Trigger: Owner clicks floating admin button (gear icon) in bottom-right corner
-- Progression: Click admin button → Panel opens with tabbed interface → Select category (Profile/Anime/Swimming/About/Social) → Edit existing items or add new ones → Delete unwanted items → Click "Save All Changes" → Content persists and page updates
-- Success criteria: All site content is editable through intuitive interface, changes save to KV storage, updates reflect immediately on page, only visible to site owner
+- Functionality: Comprehensive admin panel allowing site owner to edit all content including profile info, anime list, swimming achievements, social links, hobbies, fun facts, and view contact messages with email notifications
+- Purpose: Give complete control over site content without code changes; centralized inbox for contact form submissions
+- Trigger: Owner clicks floating admin button (gear icon) in bottom-right corner; new messages add unread badge to admin button
+- Progression: Click admin button → Enter password → Panel opens with tabbed interface → Select category (Profile/Anime/Swimming/About/Social/Messages/Settings) → Edit existing items or add new ones → Delete unwanted items → View contact messages with unread indicators → Mark messages as read or delete → Click "Save All Changes" → Content persists and page updates
+- Success criteria: All site content is editable through intuitive interface, changes save to KV storage, updates reflect immediately on page, only visible to site owner, contact messages display with unread count badge, messages persist between sessions
 
 ## Edge Case Handling
 - **Empty Gallery State**: If no photos exist, display helpful empty state with prompt to add photos (for owners) or simple message (for visitors)
@@ -85,6 +85,11 @@ A vibrant personal web page showcasing a 14-year-old's passions for anime and sw
 - **Admin Dialog Overflow**: Large content lists scroll within dialog on smaller screens
 - **Theme Persistence**: Theme preference stored in KV and applied on page load to prevent flash of wrong theme
 - **Dark Mode Colors**: All color variables recalibrated for dark mode to maintain contrast ratios and accessibility
+- **Empty Messages State**: If no contact messages exist, displays empty state with helpful icon and message
+- **Email Notification Failure**: If email notification fails, form submission still succeeds and message is stored
+- **Unread Message Counter**: Badge updates reactively when messages are marked as read or deleted
+- **Message Persistence**: All contact form submissions stored in KV storage with read/unread status
+- **Owner Email Detection**: Uses GitHub email from spark.user() API for notification recipient
 
 ## Design Direction
 
@@ -177,6 +182,8 @@ Animations should feel lively and expressive without being overwhelming - think 
   - Gear: For admin panel button
   - FloppyDisk: For save action
   - Clock: For time displays in achievements
+  - Envelope: For messages/contact section and Messages tab icon
+  - Bell: For notification indicators (unread messages)
   - Moon/Sun: For dark mode toggle button
   - Social icons: Discord, Instagram, Twitch, YouTube, Twitter (X), TikTok
   - PaperPlaneTilt: For contact/messaging

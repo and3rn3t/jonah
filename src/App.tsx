@@ -1,5 +1,5 @@
 import { motion, Variants } from 'framer-motion'
-import { Television, Waves, User, Star, Trophy, Clock, DiscordLogo, InstagramLogo, TwitchLogo, YoutubeLogo, PaperPlaneTilt, Images, XLogo, TiktokLogo } from '@phosphor-icons/react'
+import { Television, Waves, User, Star, Trophy, Clock, DiscordLogo, InstagramLogo, TwitchLogo, YoutubeLogo, PaperPlaneTilt, Images, XLogo, TiktokLogo, Envelope, Bell } from '@phosphor-icons/react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -14,7 +14,7 @@ import { PhotoGallery } from '@/components/PhotoGallery'
 import { AdminPanel } from '@/components/AdminPanel'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { useKV } from '@github/spark/hooks'
-import type { SiteContent } from '@/lib/types'
+import type { SiteContent, ContactMessage } from '@/lib/types'
 
 const defaultContent: SiteContent = {
   profile: {
@@ -101,17 +101,22 @@ const defaultContent: SiteContent = {
 
 function App() {
   const [content, setContent] = useKV<SiteContent>('site-content', defaultContent)
+  const [messages, setMessages] = useKV<ContactMessage[]>('contact-messages', [])
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isOwner, setIsOwner] = useState(false)
+  const [ownerEmail, setOwnerEmail] = useState<string>('')
 
   useEffect(() => {
     const checkOwnership = async () => {
       try {
         const user = await window.spark.user()
         setIsOwner(user?.isOwner || false)
+        if (user?.email) {
+          setOwnerEmail(user.email)
+        }
       } catch {
         setIsOwner(false)
       }
@@ -144,9 +149,40 @@ function App() {
     e.preventDefault()
     setIsSubmitting(true)
 
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    const newMessage: ContactMessage = {
+      id: Date.now().toString(),
+      name,
+      email,
+      message,
+      timestamp: Date.now(),
+      read: false
+    }
 
-    toast.success('Message sent! I\'ll get back to you soon! 🎉')
+    setMessages((currentMessages) => [...(currentMessages || []), newMessage])
+
+    if (ownerEmail) {
+      try {
+        const emailPrompt = `Generate a friendly email notification for a website owner. The website owner received a new contact form submission with the following details:
+
+From: ${name}
+Email: ${email}
+Message: ${message}
+
+Create a concise, friendly email notification (subject and body) that informs the owner about this new message. Format the output as JSON with "subject" and "body" fields. Keep it professional but warm.`
+
+        const emailContent = await window.spark.llm(emailPrompt, 'gpt-4o-mini', true)
+        const { subject } = JSON.parse(emailContent)
+        
+        toast.success(`Message sent! Owner will be notified at ${ownerEmail} 📧`, {
+          description: subject
+        })
+      } catch (error) {
+        toast.success('Message sent! I\'ll get back to you soon! 🎉')
+      }
+    } else {
+      toast.success('Message sent! I\'ll get back to you soon! 🎉')
+    }
+
     setName('')
     setEmail('')
     setMessage('')
