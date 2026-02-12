@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Plus, Trash, PencilSimple, FloppyDisk, Gear, X, Star, Clock } from '@phosphor-icons/react'
+import { Plus, Trash, PencilSimple, FloppyDisk, Gear, X, Star, Clock, LockKey, Eye, EyeSlash } from '@phosphor-icons/react'
 import { useKV } from '@github/spark/hooks'
 import { toast } from 'sonner'
 import type { SiteContent } from '@/lib/types'
@@ -21,7 +21,33 @@ interface AdminPanelProps {
 
 export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const [isUnlocked, setIsUnlocked] = useState(false)
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false)
+  const [passwordInput, setPasswordInput] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [adminPassword, setAdminPassword] = useKV<string>('admin-password', 'admin123')
   const [localContent, setLocalContent] = useState<SiteContent>(content)
+
+  const handlePasswordSubmit = () => {
+    if (passwordInput === adminPassword) {
+      setIsUnlocked(true)
+      setShowPasswordDialog(false)
+      setIsOpen(true)
+      setPasswordInput('')
+      toast.success('Welcome! Admin panel unlocked! 🔓')
+    } else {
+      toast.error('Wrong password! Try again 🔒')
+      setPasswordInput('')
+    }
+  }
+
+  const handleOpenChange = (open: boolean) => {
+    if (open && !isUnlocked) {
+      setShowPasswordDialog(true)
+    } else if (!open) {
+      setIsOpen(false)
+    }
+  }
 
   const handleSave = () => {
     onContentUpdate(localContent)
@@ -159,34 +185,100 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button 
-          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl bg-accent hover:bg-accent/90 z-40"
-          size="icon"
-        >
-          <Gear size={24} weight="bold" />
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-2xl flex items-center gap-2">
-            <Gear size={28} weight="duotone" className="text-accent" />
-            Manage Site Content
-          </DialogTitle>
-          <DialogDescription>
-            Update your personal information, anime favorites, swimming achievements, and more
-          </DialogDescription>
-        </DialogHeader>
+    <>
+      <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-2xl">
+              <LockKey size={28} weight="duotone" className="text-accent" />
+              Admin Password Required
+            </DialogTitle>
+            <DialogDescription>
+              Enter the secret password to access the admin panel
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handlePasswordSubmit()
+                    }
+                  }}
+                  placeholder="Enter admin password"
+                  className="pr-10 border-2 focus:border-accent"
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showPassword ? <EyeSlash size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Default password: <code className="bg-muted px-1.5 py-0.5 rounded">admin123</code>
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowPasswordDialog(false)
+                setPasswordInput('')
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handlePasswordSubmit}
+              className="bg-accent hover:bg-accent/90 gap-2"
+            >
+              <LockKey size={18} weight="bold" />
+              Unlock
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-        <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="anime">Anime</TabsTrigger>
-            <TabsTrigger value="swimming">Swimming</TabsTrigger>
-            <TabsTrigger value="about">About</TabsTrigger>
-            <TabsTrigger value="social">Social</TabsTrigger>
-          </TabsList>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          <Button 
+            className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl bg-accent hover:bg-accent/90 z-40"
+            size="icon"
+            onClick={() => handleOpenChange(true)}
+          >
+            <Gear size={24} weight="bold" />
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl flex items-center gap-2">
+              <Gear size={28} weight="duotone" className="text-accent" />
+              Manage Site Content
+            </DialogTitle>
+            <DialogDescription>
+              Update your personal information, anime favorites, swimming achievements, and more
+            </DialogDescription>
+          </DialogHeader>
+
+          <Tabs defaultValue="profile" className="w-full">
+            <TabsList className="grid w-full grid-cols-6">
+              <TabsTrigger value="profile">Profile</TabsTrigger>
+              <TabsTrigger value="anime">Anime</TabsTrigger>
+              <TabsTrigger value="swimming">Swimming</TabsTrigger>
+              <TabsTrigger value="about">About</TabsTrigger>
+              <TabsTrigger value="social">Social</TabsTrigger>
+              <TabsTrigger value="settings">Settings</TabsTrigger>
+            </TabsList>
 
           <TabsContent value="profile" className="space-y-4 mt-4">
             <Card>
@@ -562,6 +654,57 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
               ))}
             </div>
           </TabsContent>
+
+          <TabsContent value="settings" className="space-y-4 mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <LockKey size={24} weight="duotone" className="text-accent" />
+                  Admin Password
+                </CardTitle>
+                <CardDescription>Change the password required to access this admin panel</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="new-password">New Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="new-password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Enter new password"
+                      className="pr-10"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          const input = e.currentTarget
+                          if (input.value.trim()) {
+                            setAdminPassword(input.value)
+                            toast.success('Password updated successfully! 🔐')
+                            input.value = ''
+                          }
+                        }
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showPassword ? <EyeSlash size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Press Enter to save the new password
+                  </p>
+                </div>
+                <div className="p-4 bg-muted/50 rounded-lg space-y-2">
+                  <p className="text-sm font-semibold">Current Password:</p>
+                  <code className="text-sm bg-background px-2 py-1 rounded border">
+                    {showPassword ? adminPassword : '•'.repeat(adminPassword?.length || 0)}
+                  </code>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
 
         <DialogFooter className="gap-2">
@@ -575,5 +718,6 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+    </>
   )
 }
