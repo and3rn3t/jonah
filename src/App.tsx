@@ -12,6 +12,7 @@ import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { PhotoGallery } from '@/components/PhotoGallery'
 import { AdminPanel } from '@/components/AdminPanel'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import { useKV } from '@github/spark/hooks'
 import type { SiteContent } from '@/lib/types'
 
@@ -210,6 +211,7 @@ function App() {
 
   return (
     <div className="min-h-screen gradient-mesh">
+      <ThemeToggle />
       <motion.div
         initial="hidden"
         animate="visible"

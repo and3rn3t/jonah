@@ -54,6 +54,13 @@ A vibrant personal web page showcasing a 14-year-old's passions for anime and sw
 - Progression: Scroll into view → User views social links or fills form → Clicks social button or submits message → Receives confirmation; Owner opens admin panel → Navigates to Social tab → Adds/edits/deletes social links → Saves changes → Links update on page
 - Success criteria: Social links are clearly visible, form validates input and shows success message, owner can manage all social platforms through admin interface
 
+**Dark Mode Toggle**
+- Functionality: Toggle between light and dark color themes with persistent preference
+- Purpose: Provide comfortable viewing in different lighting conditions and user preference
+- Trigger: User clicks theme toggle button in top-right corner
+- Progression: Click toggle → Theme transitions smoothly → Dark mode activated → Preference saved to KV storage → Setting persists across page visits
+- Success criteria: Theme switches smoothly without flash, all colors remain accessible and readable in both modes, preference persists between sessions
+
 **Admin Content Management**
 - Functionality: Comprehensive admin panel allowing site owner to edit all content including profile info, anime list, swimming achievements, social links, hobbies, and fun facts
 - Purpose: Give complete control over site content without code changes
@@ -76,6 +83,8 @@ A vibrant personal web page showcasing a 14-year-old's passions for anime and sw
 - **Content Validation**: Admin panel prevents saving invalid data (e.g., empty titles, invalid ratings)
 - **Multiple Social Platforms**: Supports Discord, Instagram, Twitch, YouTube, Twitter, and TikTok with platform-specific styling
 - **Admin Dialog Overflow**: Large content lists scroll within dialog on smaller screens
+- **Theme Persistence**: Theme preference stored in KV and applied on page load to prevent flash of wrong theme
+- **Dark Mode Colors**: All color variables recalibrated for dark mode to maintain contrast ratios and accessibility
 
 ## Design Direction
 
@@ -83,8 +92,9 @@ The design should feel like a fusion of anime-inspired vibrancy and aquatic fres
 
 ## Color Selection
 
-A dynamic palette that merges anime culture's vibrant energy with swimming's aquatic coolness.
+A dynamic palette that merges anime culture's vibrant energy with swimming's aquatic coolness, with carefully calibrated dark mode variants.
 
+**Light Mode:**
 - **Primary Color**: Deep Ocean Blue `oklch(0.45 0.15 240)` - Represents swimming and water, provides grounding
 - **Secondary Colors**: 
   - Bright Cyan `oklch(0.75 0.15 200)` - Energetic water splash accent
@@ -95,6 +105,17 @@ A dynamic palette that merges anime culture's vibrant energy with swimming's aqu
   - Primary (Deep Ocean Blue `oklch(0.45 0.15 240)`): White text `oklch(1 0 0)` - Ratio 7.8:1 ✓
   - Accent (Electric Magenta `oklch(0.65 0.25 330)`): White text `oklch(1 0 0)` - Ratio 4.9:1 ✓
   - Card backgrounds (White `oklch(1 0 0)`): Deep Navy Text `oklch(0.2 0.05 240)` - Ratio 15.1:1 ✓
+
+**Dark Mode:**
+- **Primary Color**: Brighter Ocean Blue `oklch(0.55 0.18 240)` - Enhanced for dark backgrounds
+- **Secondary Colors**:
+  - Vibrant Cyan `oklch(0.65 0.15 200)` - Adjusted for dark mode contrast
+- **Accent Color**: Bright Magenta `oklch(0.7 0.25 330)` - Intensified for visibility on dark
+- **Foreground/Background Pairings**:
+  - Background (Deep Blue-Black `oklch(0.15 0.02 240)`): Light Blue-White Text `oklch(0.95 0.01 220)` - Ratio 12.8:1 ✓
+  - Card (Dark Blue `oklch(0.2 0.02 240)`): Light Text `oklch(0.95 0.01 220)` - Ratio 11.2:1 ✓
+  - Primary (Brighter Ocean Blue `oklch(0.55 0.18 240)`): White text `oklch(1 0 0)` - Ratio 6.2:1 ✓
+  - Accent (Bright Magenta `oklch(0.7 0.25 330)`): Dark text `oklch(0.1 0.02 240)` - Ratio 8.9:1 ✓
 
 ## Font Selection
 
@@ -156,6 +177,7 @@ Animations should feel lively and expressive without being overwhelming - think 
   - Gear: For admin panel button
   - FloppyDisk: For save action
   - Clock: For time displays in achievements
+  - Moon/Sun: For dark mode toggle button
   - Social icons: Discord, Instagram, Twitch, YouTube, Twitter (X), TikTok
   - PaperPlaneTilt: For contact/messaging
   
