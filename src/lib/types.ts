@@ -57,3 +57,14 @@ export interface ContactMessage {
   timestamp: number
   read: boolean
 }
+
+export interface SwimmingGoal {
+  id: string
+  stroke: string
+  targetTime: string
+  currentBest: string
+  deadline?: string
+  notes?: string
+  achieved: boolean
+  achievedDate?: number
+}

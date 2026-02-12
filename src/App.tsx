@@ -1,5 +1,5 @@
 import { motion, Variants } from 'framer-motion'
-import { Television, Waves, User, Star, Trophy, Clock, DiscordLogo, InstagramLogo, TwitchLogo, YoutubeLogo, PaperPlaneTilt, Images, XLogo, TiktokLogo, Envelope, Bell, ChartLineUp, ChartBar } from '@phosphor-icons/react'
+import { Television, Waves, User, Star, Trophy, Clock, DiscordLogo, InstagramLogo, TwitchLogo, YoutubeLogo, PaperPlaneTilt, Images, XLogo, TiktokLogo, Envelope, Bell, ChartLineUp, ChartBar, Target } from '@phosphor-icons/react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -15,8 +15,9 @@ import { AdminPanel } from '@/components/AdminPanel'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { SwimmingTimeline } from '@/components/SwimmingTimeline'
 import { StatsDashboard } from '@/components/StatsDashboard'
+import { SwimmingGoals } from '@/components/SwimmingGoals'
 import { useKV } from '@github/spark/hooks'
-import type { SiteContent, ContactMessage } from '@/lib/types'
+import type { SiteContent, ContactMessage, SwimmingGoal } from '@/lib/types'
 
 const defaultContent: SiteContent = {
   profile: {
@@ -267,9 +268,48 @@ const defaultContent: SiteContent = {
   ]
 }
 
+const defaultGoals: SwimmingGoal[] = [
+  {
+    id: '1',
+    stroke: '50m Freestyle',
+    targetTime: '25.0s',
+    currentBest: '26.1s',
+    deadline: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    notes: 'Focus on explosive starts and powerful turns. Need to work on underwater dolphin kicks.',
+    achieved: false
+  },
+  {
+    id: '2',
+    stroke: '100m Freestyle',
+    targetTime: '56.0s',
+    currentBest: '58.4s',
+    deadline: new Date(Date.now() + 120 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    notes: 'Maintain consistent pace throughout. Breathing pattern every 3 strokes.',
+    achieved: false
+  },
+  {
+    id: '3',
+    stroke: '100m Butterfly',
+    targetTime: '1:02.0',
+    currentBest: '1:04.8s',
+    notes: 'Working on timing and rhythm. Core strength training 3x per week.',
+    achieved: false
+  },
+  {
+    id: '4',
+    stroke: '200m Freestyle',
+    targetTime: '2:00.0',
+    currentBest: '2:05.3s',
+    deadline: new Date(Date.now() + 150 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    notes: 'Build endurance with longer training sets. Target sub-2 minute by summer championships.',
+    achieved: false
+  }
+]
+
 function App() {
   const [content, setContent] = useKV<SiteContent>('site-content', defaultContent)
   const [messages, setMessages] = useKV<ContactMessage[]>('contact-messages', [])
+  const [goals, setGoals] = useKV<SwimmingGoal[]>('swimming-goals', defaultGoals)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
@@ -545,6 +585,24 @@ Create a concise, friendly email notification (subject and body) that informs th
                   </CardContent>
                 </Card>
               </motion.div>
+            </motion.div>
+          </div>
+        </section>
+
+        <Separator className="max-w-6xl mx-auto" />
+
+        <section className="py-12 md:py-20 px-4">
+          <div className="max-w-6xl mx-auto">
+            <motion.div variants={itemVariants} className="mb-8 md:mb-12">
+              <div className="flex items-center gap-3 mb-3">
+                <Target size={32} weight="duotone" className="text-accent" />
+                <h2 className="text-3xl md:text-4xl font-bold">Swimming Goals</h2>
+              </div>
+              <p className="text-muted-foreground">Target times I'm working towards</p>
+            </motion.div>
+
+            <motion.div variants={itemVariants}>
+              <SwimmingGoals goals={goals || []} />
             </motion.div>
           </div>
         </section>
