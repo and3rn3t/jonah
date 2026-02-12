@@ -8,7 +8,7 @@ A vibrant personal web page showcasing a 14-year-old's passions for anime and sw
 3. **Expressive** - Visual elements should celebrate both anime culture and athletic achievement without compromise.
 
 **Complexity Level**: Light Application (multiple features with basic state)
-  - This personal page now includes photo management capabilities with persistent storage, allowing the owner to upload, edit, and delete their own photos through the interface.
+  - This personal page includes comprehensive content management capabilities with persistent storage, allowing the owner to fully customize all site content through an admin interface - from profile information to anime favorites, swimming achievements, social links, and more.
 
 ## Essential Features
 
@@ -48,11 +48,18 @@ A vibrant personal web page showcasing a 14-year-old's passions for anime and sw
 - Success criteria: Photos are displayed in organized grid, filters work smoothly, lightbox provides immersive viewing experience, owner can upload images from device, edit photo metadata, delete unwanted photos, all data persists between sessions
 
 **Social Media Links & Contact Form**
-- Functionality: Display social media profiles and provide message form
+- Functionality: Display social media profiles and provide message form; owner can manage social links through admin panel
 - Purpose: Enable visitors to connect on multiple platforms or send direct messages
-- Trigger: User scrolls to contact section
-- Progression: Scroll into view → User views social links or fills form → Clicks social button or submits message → Receives confirmation
-- Success criteria: Social links are clearly visible, form validates input and shows success message
+- Trigger: User scrolls to contact section; owner clicks admin button to manage social links
+- Progression: Scroll into view → User views social links or fills form → Clicks social button or submits message → Receives confirmation; Owner opens admin panel → Navigates to Social tab → Adds/edits/deletes social links → Saves changes → Links update on page
+- Success criteria: Social links are clearly visible, form validates input and shows success message, owner can manage all social platforms through admin interface
+
+**Admin Content Management**
+- Functionality: Comprehensive admin panel allowing site owner to edit all content including profile info, anime list, swimming achievements, social links, hobbies, and fun facts
+- Purpose: Give complete control over site content without code changes
+- Trigger: Owner clicks floating admin button (gear icon) in bottom-right corner
+- Progression: Click admin button → Panel opens with tabbed interface → Select category (Profile/Anime/Swimming/About/Social) → Edit existing items or add new ones → Delete unwanted items → Click "Save All Changes" → Content persists and page updates
+- Success criteria: All site content is editable through intuitive interface, changes save to KV storage, updates reflect immediately on page, only visible to site owner
 
 ## Edge Case Handling
 - **Empty Gallery State**: If no photos exist, display helpful empty state with prompt to add photos (for owners) or simple message (for visitors)
@@ -63,8 +70,12 @@ A vibrant personal web page showcasing a 14-year-old's passions for anime and sw
 - **Mobile Viewing**: Content reflows naturally for smaller screens without horizontal scroll
 - **Gallery Filtering**: Smooth animations when switching between photo categories; filter state maintained when adding/removing photos
 - **Keyboard Navigation**: Gallery lightbox supports arrow keys and escape key for accessibility
-- **Owner Detection**: Edit/delete controls only visible to page owner; add photo button only appears for owner
-- **Persistence**: All photo data stored in KV storage and survives page refreshes
+- **Owner Detection**: Edit/delete controls only visible to page owner; admin panel button only appears for owner
+- **Persistence**: All content and photo data stored in KV storage and survives page refreshes
+- **Empty Content States**: If owner deletes all items in a section (anime, achievements, etc.), section displays gracefully with empty arrays
+- **Content Validation**: Admin panel prevents saving invalid data (e.g., empty titles, invalid ratings)
+- **Multiple Social Platforms**: Supports Discord, Instagram, Twitch, YouTube, Twitter, and TikTok with platform-specific styling
+- **Admin Dialog Overflow**: Large content lists scroll within dialog on smaller screens
 
 ## Design Direction
 
@@ -137,12 +148,15 @@ Animations should feel lively and expressive without being overwhelming - think 
   - Trophy: For achievements
   - Images: For photo gallery section header
   - CaretLeft/CaretRight: For photo navigation in lightbox
-  - X: For closing lightbox modal
-  - Plus: For adding new photos (owner only)
-  - Trash: For deleting photos (owner only)
-  - PencilSimple: For editing photos (owner only)
+  - X: For closing lightbox modal and removing items
+  - Plus: For adding new items (photos, anime, achievements, etc.)
+  - Trash: For deleting items (photos, content entries)
+  - PencilSimple: For editing items
   - Upload: For upload action in dialog
-  - Social icons: Discord, Instagram, Twitch, YouTube
+  - Gear: For admin panel button
+  - FloppyDisk: For save action
+  - Clock: For time displays in achievements
+  - Social icons: Discord, Instagram, Twitch, YouTube, Twitter (X), TikTok
   - PaperPlaneTilt: For contact/messaging
   
 - **Spacing**:

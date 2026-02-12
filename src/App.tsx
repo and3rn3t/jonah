@@ -1,5 +1,5 @@
 import { motion, Variants } from 'framer-motion'
-import { Television, Waves, User, Star, Trophy, Clock, DiscordLogo, InstagramLogo, TwitchLogo, YoutubeLogo, PaperPlaneTilt, Images } from '@phosphor-icons/react'
+import { Television, Waves, User, Star, Trophy, Clock, DiscordLogo, InstagramLogo, TwitchLogo, YoutubeLogo, PaperPlaneTilt, Images, XLogo, TiktokLogo } from '@phosphor-icons/react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -11,8 +11,95 @@ import { Label } from '@/components/ui/label'
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { PhotoGallery } from '@/components/PhotoGallery'
+import { AdminPanel } from '@/components/AdminPanel'
+import { useKV } from '@github/spark/hooks'
+import type { SiteContent } from '@/lib/types'
+
+const defaultContent: SiteContent = {
+  profile: {
+    name: 'Alex',
+    age: 14,
+    tagline: 'Anime enthusiast • Competitive swimmer',
+    bio: 'Welcome to my corner of the internet! I love diving into epic anime series and making waves in the pool.',
+    initials: 'AK'
+  },
+  animeList: [
+    {
+      title: "Demon Slayer",
+      genre: "Action",
+      rating: 5,
+      description: "Epic story with amazing animation and character development"
+    },
+    {
+      title: "My Hero Academia",
+      genre: "Shounen",
+      rating: 5,
+      description: "Inspiring hero journey with cool powers and great fights"
+    },
+    {
+      title: "Attack on Titan",
+      genre: "Dark Fantasy",
+      rating: 4,
+      description: "Mind-blowing plot twists and intense action sequences"
+    },
+    {
+      title: "Jujutsu Kaisen",
+      genre: "Action",
+      rating: 5,
+      description: "Incredible fight scenes and awesome curse techniques"
+    }
+  ],
+  swimmingAchievements: [
+    {
+      title: "100m Freestyle",
+      time: "58.4s",
+      achievement: "Personal Best"
+    },
+    {
+      title: "50m Butterfly",
+      time: "29.2s",
+      achievement: "School Record"
+    },
+    {
+      title: "200m Medley",
+      time: "2:18.5",
+      achievement: "Regional Qualifier"
+    }
+  ],
+  socialLinks: [
+    {
+      name: 'Discord',
+      platform: 'Discord',
+      username: 'AlexSwims#1234'
+    },
+    {
+      name: 'Instagram',
+      platform: 'Instagram',
+      username: '@alexswims_anime'
+    },
+    {
+      name: 'Twitch',
+      platform: 'Twitch',
+      username: 'alexswims'
+    },
+    {
+      name: 'YouTube',
+      platform: 'YouTube',
+      username: '@AlexSwimming'
+    }
+  ],
+  favoriteStrokes: ["Freestyle", "Butterfly", "Backstroke"],
+  hobbies: ["Gaming", "Drawing", "Reading Manga", "Listening to Music"],
+  funFacts: [
+    "I've been swimming competitively for 5 years",
+    "My dream is to visit Japan and see anime studios",
+    "I practice swimming 5 days a week",
+    "I started watching anime when I was 11"
+  ]
+}
 
 function App() {
+  const [content, setContent] = useKV<SiteContent>('site-content', defaultContent)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
@@ -65,85 +152,61 @@ function App() {
     setIsSubmitting(false)
   }
 
-  const socialLinks = [
-    {
-      name: 'Discord',
-      icon: DiscordLogo,
-      username: 'AlexSwims#1234',
-      color: 'hover:bg-[#5865F2] hover:text-white',
-      bgColor: 'bg-[#5865F2]/10'
-    },
-    {
-      name: 'Instagram',
-      icon: InstagramLogo,
-      username: '@alexswims_anime',
-      color: 'hover:bg-gradient-to-tr hover:from-[#f9ce34] hover:via-[#ee2a7b] hover:to-[#6228d7] hover:text-white',
-      bgColor: 'bg-gradient-to-tr from-[#f9ce34]/10 via-[#ee2a7b]/10 to-[#6228d7]/10'
-    },
-    {
-      name: 'Twitch',
-      icon: TwitchLogo,
-      username: 'alexswims',
-      color: 'hover:bg-[#9146FF] hover:text-white',
-      bgColor: 'bg-[#9146FF]/10'
-    },
-    {
-      name: 'YouTube',
-      icon: YoutubeLogo,
-      username: '@AlexSwimming',
-      color: 'hover:bg-[#FF0000] hover:text-white',
-      bgColor: 'bg-[#FF0000]/10'
+  const getSocialIcon = (platform: string) => {
+    switch (platform) {
+      case 'Discord': return DiscordLogo
+      case 'Instagram': return InstagramLogo
+      case 'Twitch': return TwitchLogo
+      case 'YouTube': return YoutubeLogo
+      case 'Twitter': return XLogo
+      case 'TikTok': return TiktokLogo
+      default: return PaperPlaneTilt
     }
-  ]
+  }
 
-  const animeList = [
-    {
-      title: "Demon Slayer",
-      genre: "Action",
-      rating: 5,
-      description: "Epic story with amazing animation and character development"
-    },
-    {
-      title: "My Hero Academia",
-      genre: "Shounen",
-      rating: 5,
-      description: "Inspiring hero journey with cool powers and great fights"
-    },
-    {
-      title: "Attack on Titan",
-      genre: "Dark Fantasy",
-      rating: 4,
-      description: "Mind-blowing plot twists and intense action sequences"
-    },
-    {
-      title: "Jujutsu Kaisen",
-      genre: "Action",
-      rating: 5,
-      description: "Incredible fight scenes and awesome curse techniques"
+  const getSocialStyle = (platform: string) => {
+    switch (platform) {
+      case 'Discord':
+        return {
+          color: 'hover:bg-[#5865F2] hover:text-white',
+          bgColor: 'bg-[#5865F2]/10'
+        }
+      case 'Instagram':
+        return {
+          color: 'hover:bg-gradient-to-tr hover:from-[#f9ce34] hover:via-[#ee2a7b] hover:to-[#6228d7] hover:text-white',
+          bgColor: 'bg-gradient-to-tr from-[#f9ce34]/10 via-[#ee2a7b]/10 to-[#6228d7]/10'
+        }
+      case 'Twitch':
+        return {
+          color: 'hover:bg-[#9146FF] hover:text-white',
+          bgColor: 'bg-[#9146FF]/10'
+        }
+      case 'YouTube':
+        return {
+          color: 'hover:bg-[#FF0000] hover:text-white',
+          bgColor: 'bg-[#FF0000]/10'
+        }
+      case 'Twitter':
+        return {
+          color: 'hover:bg-[#1DA1F2] hover:text-white',
+          bgColor: 'bg-[#1DA1F2]/10'
+        }
+      case 'TikTok':
+        return {
+          color: 'hover:bg-black hover:text-white',
+          bgColor: 'bg-black/10'
+        }
+      default:
+        return {
+          color: 'hover:bg-accent hover:text-accent-foreground',
+          bgColor: 'bg-accent/10'
+        }
     }
-  ]
+  }
 
-  const swimmingAchievements = [
-    {
-      title: "100m Freestyle",
-      time: "58.4s",
-      achievement: "Personal Best"
-    },
-    {
-      title: "50m Butterfly",
-      time: "29.2s",
-      achievement: "School Record"
-    },
-    {
-      title: "200m Medley",
-      time: "2:18.5",
-      achievement: "Regional Qualifier"
-    }
-  ]
-
-  const favoriteStrokes = ["Freestyle", "Butterfly", "Backstroke"]
-  
-  const hobbies = ["Gaming", "Drawing", "Reading Manga", "Listening to Music"]
+  const handleContentUpdate = (newContent: SiteContent) => {
+    setContent(newContent)
+  }
 
   return (
     <div className="min-h-screen gradient-mesh">
@@ -157,18 +220,18 @@ function App() {
             <div className="flex justify-center mb-6">
               <Avatar className="w-24 h-24 md:w-32 md:h-32 border-4 border-accent shadow-lg">
                 <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-4xl font-bold">
-                  AK
+                  {content?.profile?.initials || 'AK'}
                 </AvatarFallback>
               </Avatar>
             </div>
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-              Hey, I'm Alex!
+              Hey, I'm {content?.profile?.name || 'Alex'}!
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-              14 years old • Anime enthusiast • Competitive swimmer
+              {content?.profile?.age || 14} years old • {content?.profile?.tagline || 'Anime enthusiast • Competitive swimmer'}
             </p>
             <p className="mt-4 text-base md:text-lg text-foreground/80 max-w-xl mx-auto">
-              Welcome to my corner of the internet! I love diving into epic anime series and making waves in the pool.
+              {content?.profile?.bio || 'Welcome to my corner of the internet!'}
             </p>
           </motion.div>
         </section>
@@ -189,7 +252,7 @@ function App() {
               variants={containerVariants}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
             >
-              {animeList.map((anime, index) => (
+              {content?.animeList?.map((anime, index) => (
                 <motion.div key={index} variants={itemVariants}>
                   <Card className="h-full hover:shadow-xl hover:shadow-accent/20 hover:-translate-y-1 transition-all duration-300 border-2 hover:border-accent/50 group">
                     <CardHeader>
@@ -231,7 +294,7 @@ function App() {
 
             <motion.div variants={containerVariants} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {swimmingAchievements.map((achievement, index) => (
+                {content?.swimmingAchievements?.map((achievement, index) => (
                   <motion.div key={index} variants={itemVariants}>
                     <Card className="hover:shadow-lg hover:shadow-secondary/30 hover:-translate-y-1 transition-all duration-300 border-2 hover:border-secondary group">
                       <CardHeader>
@@ -267,7 +330,7 @@ function App() {
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-wrap gap-2">
-                      {favoriteStrokes.map((stroke, index) => (
+                      {content?.favoriteStrokes?.map((stroke, index) => (
                         <Badge key={index} className="bg-primary hover:bg-primary/90 text-primary-foreground">
                           {stroke}
                         </Badge>
@@ -317,7 +380,7 @@ function App() {
                     <div>
                       <h3 className="text-xl font-semibold mb-3">Other Hobbies</h3>
                       <div className="flex flex-wrap gap-2">
-                        {hobbies.map((hobby, index) => (
+                        {content?.hobbies?.map((hobby, index) => (
                           <Badge key={index} variant="secondary" className="text-sm">
                             {hobby}
                           </Badge>
@@ -330,22 +393,12 @@ function App() {
                     <div>
                       <h3 className="text-xl font-semibold mb-3">Fun Facts</h3>
                       <ul className="space-y-2 text-muted-foreground">
-                        <li className="flex items-start gap-2">
-                          <span className="text-accent mt-1">•</span>
-                          <span>I've been swimming competitively for 5 years</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-accent mt-1">•</span>
-                          <span>My dream is to visit Japan and see anime studios</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-accent mt-1">•</span>
-                          <span>I practice swimming 5 days a week</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-accent mt-1">•</span>
-                          <span>I started watching anime when I was 11</span>
-                        </li>
+                        {content?.funFacts?.map((fact, index) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <span className="text-accent mt-1">•</span>
+                            <span>{fact}</span>
+                          </li>
+                        ))}
                       </ul>
                     </div>
                   </div>
@@ -375,8 +428,9 @@ function App() {
                     <CardDescription>Let's be friends online!</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    {socialLinks.map((social, index) => {
-                      const Icon = social.icon
+                    {content?.socialLinks?.map((social, index) => {
+                      const Icon = getSocialIcon(social.platform)
+                      const style = getSocialStyle(social.platform)
                       return (
                         <motion.div
                           key={index}
@@ -385,7 +439,7 @@ function App() {
                         >
                           <Button
                             variant="outline"
-                            className={`w-full justify-start gap-3 h-auto py-4 transition-all duration-300 ${social.color} ${social.bgColor}`}
+                            className={`w-full justify-start gap-3 h-auto py-4 transition-all duration-300 ${style.color} ${style.bgColor}`}
                           >
                             <Icon size={24} weight="fill" />
                             <div className="text-left">
@@ -477,6 +531,10 @@ function App() {
           <p className="text-sm">Thanks for visiting my page! 🌊✨</p>
         </footer>
       </motion.div>
+
+      {isOwner && content && (
+        <AdminPanel content={content} onContentUpdate={handleContentUpdate} />
+      )}
     </div>
   )
 }
