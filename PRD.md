@@ -40,11 +40,27 @@ A vibrant personal web page showcasing a 14-year-old's passions for anime and sw
 - Progression: Scroll into view → Content reveals → User learns more personal details
 - Success criteria: Visitor gets a well-rounded sense of personality and interests
 
+**Photo Gallery Section**
+- Functionality: Display filterable photo grid showcasing swimming meet photos and anime screenshots with lightbox modal
+- Purpose: Visual storytelling through favorite moments and screenshots
+- Trigger: User scrolls to gallery section, clicks filter buttons or photos
+- Progression: Scroll into view → Gallery displays → User filters by category → Clicks photo → Lightbox opens with full view → Navigate with arrows or keyboard → Close to return
+- Success criteria: Photos are displayed in organized grid, filters work smoothly, lightbox provides immersive viewing experience
+
+**Social Media Links & Contact Form**
+- Functionality: Display social media profiles and provide message form
+- Purpose: Enable visitors to connect on multiple platforms or send direct messages
+- Trigger: User scrolls to contact section
+- Progression: Scroll into view → User views social links or fills form → Clicks social button or submits message → Receives confirmation
+- Success criteria: Social links are clearly visible, form validates input and shows success message
+
 ## Edge Case Handling
 - **Empty State**: If no content exists, display placeholder content that fits the theme
 - **Long Text**: Descriptions are truncated with proper ellipsis handling to maintain layout
-- **Image Loading**: Graceful fallbacks with background colors if images fail to load
+- **Image Loading**: Graceful fallbacks with background colors and emoji placeholders if images fail to load
 - **Mobile Viewing**: Content reflows naturally for smaller screens without horizontal scroll
+- **Gallery Filtering**: Smooth animations when switching between photo categories
+- **Keyboard Navigation**: Gallery lightbox supports arrow keys and escape key for accessibility
 
 ## Design Direction
 
@@ -84,15 +100,20 @@ Animations should feel lively and expressive without being overwhelming - think 
 - Hover states on cards with subtle lift and glow effects
 - Smooth scroll behavior between sections
 - Playful micro-interactions on buttons with scale and color transitions
+- Photo gallery grid uses layout animations when filtering categories
+- Lightbox modal entrance with spring physics for natural feel
+- Navigation arrows pulse subtly to indicate interactivity
 
 ## Component Selection
 
 - **Components**:
-  - Card: For anime favorites and swimming achievements displays with hover effects
-  - Badge: For tags (anime genres, swimming strokes, skills)
+  - Card: For anime favorites, swimming achievements, and photo gallery items with hover effects
+  - Badge: For tags (anime genres, swimming strokes, skills, photo categories)
   - Separator: To divide major sections
-  - Button: For potential contact/social links
+  - Button: For social links, contact form, and gallery filters/navigation
   - Avatar: For profile image in hero section
+  - Dialog/Modal: For photo gallery lightbox viewing experience
+  - Input/Textarea: For contact form fields
   
 - **Customizations**:
   - Custom gradient backgrounds using multiple layers and mesh patterns
@@ -105,11 +126,16 @@ Animations should feel lively and expressive without being overwhelming - think 
   - Buttons: Bold accent color, scale slightly on hover with brightness shift
   
 - **Icon Selection**:
-  - Swim: For swimming section header
+  - Waves: For swimming section header
   - Television: For anime section header  
   - User: For about section
   - Star: For favorites/ratings
   - Trophy: For achievements
+  - Images: For photo gallery section header
+  - CaretLeft/CaretRight: For photo navigation in lightbox
+  - X: For closing lightbox modal
+  - Social icons: Discord, Instagram, Twitch, YouTube
+  - PaperPlaneTilt: For contact/messaging
   
 - **Spacing**:
   - Section padding: py-16 md:py-24
@@ -120,5 +146,8 @@ Animations should feel lively and expressive without being overwhelming - think 
 - **Mobile**:
   - Hero section stacks vertically with centered content
   - Card grids go from 3 columns → 2 columns → 1 column
+  - Photo gallery grid: 4 columns → 3 columns → 2 columns on mobile
   - Section padding reduces from py-24 to py-12
   - Typography scales down: H1 from 48px to 36px
+  - Lightbox navigation arrows hidden on mobile, replaced with button controls
+  - Social media cards stack vertically on smaller screens
