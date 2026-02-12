@@ -11,6 +11,19 @@ export interface SwimmingAchievement {
   achievement: string
 }
 
+export interface TimelineEvent {
+  id: string
+  date: number
+  eventType: 'personal-best' | 'competition' | 'milestone' | 'training'
+  title: string
+  stroke: string
+  time: string
+  previousTime?: string
+  location?: string
+  description: string
+  placement?: string
+}
+
 export interface SocialLink {
   name: string
   platform: string
@@ -33,6 +46,7 @@ export interface SiteContent {
   favoriteStrokes: string[]
   hobbies: string[]
   funFacts: string[]
+  timeline?: TimelineEvent[]
 }
 
 export interface ContactMessage {

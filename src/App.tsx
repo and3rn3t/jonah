@@ -1,5 +1,5 @@
 import { motion, Variants } from 'framer-motion'
-import { Television, Waves, User, Star, Trophy, Clock, DiscordLogo, InstagramLogo, TwitchLogo, YoutubeLogo, PaperPlaneTilt, Images, XLogo, TiktokLogo, Envelope, Bell } from '@phosphor-icons/react'
+import { Television, Waves, User, Star, Trophy, Clock, DiscordLogo, InstagramLogo, TwitchLogo, YoutubeLogo, PaperPlaneTilt, Images, XLogo, TiktokLogo, Envelope, Bell, ChartLineUp } from '@phosphor-icons/react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -13,6 +13,7 @@ import { toast } from 'sonner'
 import { PhotoGallery } from '@/components/PhotoGallery'
 import { AdminPanel } from '@/components/AdminPanel'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { SwimmingTimeline } from '@/components/SwimmingTimeline'
 import { useKV } from '@github/spark/hooks'
 import type { SiteContent, ContactMessage } from '@/lib/types'
 
@@ -96,6 +97,73 @@ const defaultContent: SiteContent = {
     "My dream is to visit Japan and see anime studios",
     "I practice swimming 5 days a week",
     "I started watching anime when I was 11"
+  ],
+  timeline: [
+    {
+      id: '1',
+      date: new Date('2024-01-15').getTime(),
+      eventType: 'personal-best',
+      title: '100m Freestyle Personal Best',
+      stroke: '100m Freestyle',
+      time: '58.4s',
+      previousTime: '1:01.2s',
+      location: 'City Aquatic Center',
+      description: 'Broke my personal record by almost 3 seconds! All that training is paying off.',
+      placement: '2nd Place'
+    },
+    {
+      id: '2',
+      date: new Date('2023-11-20').getTime(),
+      eventType: 'competition',
+      title: 'Regional Championships',
+      stroke: '50m Butterfly',
+      time: '29.2s',
+      location: 'State Pool Complex',
+      description: 'Set a new school record and qualified for state championships!',
+      placement: '1st Place'
+    },
+    {
+      id: '3',
+      date: new Date('2023-09-10').getTime(),
+      eventType: 'milestone',
+      title: 'First Sub-60 Second 100m Freestyle',
+      stroke: '100m Freestyle',
+      time: '59.8s',
+      previousTime: '1:01.2s',
+      location: 'Team Practice',
+      description: 'Finally broke the 1-minute barrier! This has been my goal for months.'
+    },
+    {
+      id: '4',
+      date: new Date('2023-06-05').getTime(),
+      eventType: 'competition',
+      title: 'Summer Invitational',
+      stroke: '200m Medley',
+      time: '2:18.5s',
+      location: 'Lake Shore Pool',
+      description: 'Solid performance in all four strokes. Looking forward to improving my backstroke.',
+      placement: '3rd Place'
+    },
+    {
+      id: '5',
+      date: new Date('2023-03-15').getTime(),
+      eventType: 'training',
+      title: 'Technique Breakthrough',
+      stroke: 'Butterfly',
+      time: '30.5s',
+      location: 'Team Practice',
+      description: 'Coach helped me fix my butterfly technique. Starting to feel much more efficient in the water.'
+    },
+    {
+      id: '6',
+      date: new Date('2023-01-08').getTime(),
+      eventType: 'milestone',
+      title: 'Joined Competitive Swim Team',
+      stroke: 'All Strokes',
+      time: 'N/A',
+      location: 'City Swim Club',
+      description: 'Officially joined the competitive team after years of recreational swimming. Ready to take it to the next level!'
+    }
   ]
 }
 
@@ -377,6 +445,24 @@ Create a concise, friendly email notification (subject and body) that informs th
                   </CardContent>
                 </Card>
               </motion.div>
+            </motion.div>
+          </div>
+        </section>
+
+        <Separator className="max-w-6xl mx-auto" />
+
+        <section className="py-12 md:py-20 px-4">
+          <div className="max-w-6xl mx-auto">
+            <motion.div variants={itemVariants} className="mb-8 md:mb-12">
+              <div className="flex items-center gap-3 mb-3">
+                <ChartLineUp size={32} weight="duotone" className="text-accent" />
+                <h2 className="text-3xl md:text-4xl font-bold">Progress Timeline</h2>
+              </div>
+              <p className="text-muted-foreground">My swimming journey and achievements over time</p>
+            </motion.div>
+
+            <motion.div variants={itemVariants}>
+              <SwimmingTimeline events={content?.timeline || []} />
             </motion.div>
           </div>
         </section>

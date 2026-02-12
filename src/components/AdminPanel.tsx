@@ -9,10 +9,10 @@ import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Plus, Trash, PencilSimple, FloppyDisk, Gear, X, Star, Clock, LockKey, Eye, EyeSlash, Envelope, Upload, Images } from '@phosphor-icons/react'
+import { Plus, Trash, PencilSimple, FloppyDisk, Gear, X, Star, Clock, LockKey, Eye, EyeSlash, Envelope, Upload, Images, ChartLineUp, CalendarBlank } from '@phosphor-icons/react'
 import { useKV } from '@github/spark/hooks'
 import { toast } from 'sonner'
-import type { SiteContent, ContactMessage } from '@/lib/types'
+import type { SiteContent, ContactMessage, TimelineEvent } from '@/lib/types'
 import type { Photo } from '@/components/PhotoGallery'
 
 interface AdminPanelProps {
@@ -292,6 +292,39 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
     setIsEditPhotoDialogOpen(true)
   }
 
+  const addTimelineEvent = () => {
+    const newEvent: TimelineEvent = {
+      id: Date.now().toString(),
+      date: Date.now(),
+      eventType: 'personal-best',
+      title: '',
+      stroke: '',
+      time: '',
+      description: '',
+    }
+    setLocalContent(prev => ({
+      ...prev,
+      timeline: [...(prev.timeline || []), newEvent]
+    }))
+  }
+
+  const updateTimelineEvent = (id: string, field: keyof TimelineEvent, value: string | number) => {
+    setLocalContent(prev => ({
+      ...prev,
+      timeline: (prev.timeline || []).map(event =>
+        event.id === id ? { ...event, [field]: value } : event
+      )
+    }))
+  }
+
+  const deleteTimelineEvent = (id: string) => {
+    setLocalContent(prev => ({
+      ...prev,
+      timeline: (prev.timeline || []).filter(event => event.id !== id)
+    }))
+    toast.success('Timeline event deleted')
+  }
+
   return (
     <>
       <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
@@ -382,10 +415,11 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
           </DialogHeader>
 
           <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="grid w-full grid-cols-8">
+            <TabsList className="grid w-full grid-cols-9">
               <TabsTrigger value="profile">Profile</TabsTrigger>
               <TabsTrigger value="anime">Anime</TabsTrigger>
               <TabsTrigger value="swimming">Swimming</TabsTrigger>
+              <TabsTrigger value="timeline">Timeline</TabsTrigger>
               <TabsTrigger value="photos">Photos</TabsTrigger>
               <TabsTrigger value="about">About</TabsTrigger>
               <TabsTrigger value="social">Social</TabsTrigger>
@@ -642,6 +676,153 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
                     </Badge>
                   ))}
                 </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="timeline" className="space-y-4 mt-4">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <ChartLineUp size={24} weight="duotone" className="text-accent" />
+                    Swimming Progress Timeline
+                  </h3>
+                  <p className="text-sm text-muted-foreground">Track your swimming achievements over time</p>
+                </div>
+                <Button onClick={addTimelineEvent} className="gap-2">
+                  <Plus size={18} weight="bold" />
+                  Add Event
+                </Button>
+              </div>
+
+              <div className="space-y-4">
+                {(localContent.timeline || [])
+                  .sort((a, b) => b.date - a.date)
+                  .map((event) => (
+                    <Card key={event.id}>
+                      <CardContent className="pt-6 space-y-4">
+                        <div className="flex justify-between items-start">
+                          <div className="flex items-center gap-2">
+                            <CalendarBlank size={20} weight="duotone" className="text-accent" />
+                            <h4 className="font-semibold">
+                              {new Date(event.date).toLocaleDateString()}
+                            </h4>
+                          </div>
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => deleteTimelineEvent(event.id)}
+                          >
+                            <Trash size={16} />
+                          </Button>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label>Event Title</Label>
+                            <Input
+                              value={event.title}
+                              onChange={(e) => updateTimelineEvent(event.id, 'title', e.target.value)}
+                              placeholder="100m Freestyle Personal Best"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Event Type</Label>
+                            <Select
+                              value={event.eventType}
+                              onValueChange={(value) => updateTimelineEvent(event.id, 'eventType', value)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="personal-best">Personal Best</SelectItem>
+                                <SelectItem value="competition">Competition</SelectItem>
+                                <SelectItem value="milestone">Milestone</SelectItem>
+                                <SelectItem value="training">Training</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-4">
+                          <div className="space-y-2">
+                            <Label>Date</Label>
+                            <Input
+                              type="date"
+                              value={new Date(event.date).toISOString().split('T')[0]}
+                              onChange={(e) => updateTimelineEvent(event.id, 'date', new Date(e.target.value).getTime())}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Stroke/Event</Label>
+                            <Input
+                              value={event.stroke}
+                              onChange={(e) => updateTimelineEvent(event.id, 'stroke', e.target.value)}
+                              placeholder="100m Freestyle"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Time</Label>
+                            <Input
+                              value={event.time}
+                              onChange={(e) => updateTimelineEvent(event.id, 'time', e.target.value)}
+                              placeholder="58.4s"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label>Previous Time (optional)</Label>
+                            <Input
+                              value={event.previousTime || ''}
+                              onChange={(e) => updateTimelineEvent(event.id, 'previousTime', e.target.value)}
+                              placeholder="1:01.2s"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Placement (optional)</Label>
+                            <Input
+                              value={event.placement || ''}
+                              onChange={(e) => updateTimelineEvent(event.id, 'placement', e.target.value)}
+                              placeholder="1st Place"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Location (optional)</Label>
+                          <Input
+                            value={event.location || ''}
+                            onChange={(e) => updateTimelineEvent(event.id, 'location', e.target.value)}
+                            placeholder="City Aquatic Center"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Description</Label>
+                          <Textarea
+                            value={event.description}
+                            onChange={(e) => updateTimelineEvent(event.id, 'description', e.target.value)}
+                            placeholder="Describe what happened at this event..."
+                            rows={3}
+                          />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                
+                {(!localContent.timeline || localContent.timeline.length === 0) && (
+                  <Card className="border-dashed">
+                    <CardContent className="py-12 text-center">
+                      <ChartLineUp size={48} weight="duotone" className="text-muted-foreground mx-auto mb-4" />
+                      <p className="text-muted-foreground">No timeline events yet. Add your first achievement!</p>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             </div>
           </TabsContent>
