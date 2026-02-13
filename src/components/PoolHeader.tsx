@@ -1,10 +1,36 @@
 import { motion } from 'framer-motion'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 export function PoolHeader() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
 
+  // Track container size with ResizeObserver
   useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    const updateDimensions = () => {
+      const rect = container.getBoundingClientRect()
+      if (rect.width > 0 && rect.height > 0) {
+        setDimensions({ width: rect.width, height: rect.height })
+      }
+    }
+
+    // Initial measurement
+    updateDimensions()
+
+    const resizeObserver = new ResizeObserver(updateDimensions)
+    resizeObserver.observe(container)
+
+    return () => resizeObserver.disconnect()
+  }, [])
+
+  // Run animation when we have valid dimensions
+  useEffect(() => {
+    if (dimensions.width === 0 || dimensions.height === 0) return
+
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -14,18 +40,14 @@ export function PoolHeader() {
     let animationFrame: number
     let time = 0
 
-    const setCanvasSize = () => {
-      const dpr = window.devicePixelRatio || 1
-      const rect = canvas.getBoundingClientRect()
-      canvas.width = rect.width * dpr
-      canvas.height = rect.height * dpr
-      ctx.scale(dpr, dpr)
-      canvas.style.width = rect.width + 'px'
-      canvas.style.height = rect.height + 'px'
-    }
+    // Set canvas size based on measured dimensions
+    const dpr = window.devicePixelRatio || 1
+    canvas.width = dimensions.width * dpr
+    canvas.height = dimensions.height * dpr
+    ctx.scale(dpr, dpr)
 
-    setCanvasSize()
-    window.addEventListener('resize', setCanvasSize)
+    const width = dimensions.width
+    const height = dimensions.height
 
     const NUM_LANES = 8
 
@@ -40,34 +62,6 @@ export function PoolHeader() {
       { water: [168, 85, 247], accent: [192, 132, 252] },  // Purple
       { water: [236, 72, 153], accent: [244, 114, 182] },  // Pink
     ]
-
-    // Bubbles per lane
-    const bubbles: Array<{
-      lane: number
-      x: number
-      y: number
-      radius: number
-      speed: number
-      wobble: number
-      wobbleSpeed: number
-    }> = []
-
-    const initBubbles = (width: number, height: number) => {
-      bubbles.length = 0
-      const laneWidth = width / NUM_LANES
-      for (let i = 0; i < 40; i++) {
-        const lane = Math.floor(Math.random() * NUM_LANES)
-        bubbles.push({
-          lane,
-          x: lane * laneWidth + Math.random() * laneWidth,
-          y: Math.random() * height,
-          radius: 1.5 + Math.random() * 3,
-          speed: 0.4 + Math.random() * 0.6,
-          wobble: Math.random() * Math.PI * 2,
-          wobbleSpeed: 0.02 + Math.random() * 0.02
-        })
-      }
-    }
 
     const lerp = (a: number, b: number, t: number) => a + (b - a) * t
 
@@ -89,15 +83,32 @@ export function PoolHeader() {
       ]
     }
 
+    const laneWidth = width / NUM_LANES
+
+    // Initialize bubbles
+    const bubblesList: Array<{
+      lane: number
+      x: number
+      y: number
+      radius: number
+      speed: number
+      wobble: number
+      wobbleSpeed: number
+    }> = []
+    for (let i = 0; i < 40; i++) {
+      const lane = Math.floor(Math.random() * NUM_LANES)
+      bubblesList.push({
+        lane,
+        x: lane * laneWidth + Math.random() * laneWidth,
+        y: Math.random() * height,
+        radius: 1.5 + Math.random() * 3,
+        speed: 0.4 + Math.random() * 0.6,
+        wobble: Math.random() * Math.PI * 2,
+        wobbleSpeed: 0.02 + Math.random() * 0.02
+      })
+    }
+
     const animate = () => {
-      const width = canvas.getBoundingClientRect().width
-      const height = canvas.getBoundingClientRect().height
-      const laneWidth = width / NUM_LANES
-
-      if (bubbles.length === 0) {
-        initBubbles(width, height)
-      }
-
       time++
 
       ctx.clearRect(0, 0, width, height)
@@ -195,7 +206,7 @@ export function PoolHeader() {
       }
 
       // Draw and animate bubbles
-      bubbles.forEach((bubble) => {
+      bubblesList.forEach((bubble) => {
         bubble.y -= bubble.speed
         bubble.wobble += bubble.wobbleSpeed
         const wobbleX = Math.sin(bubble.wobble) * 3
@@ -245,13 +256,13 @@ export function PoolHeader() {
     animate()
 
     return () => {
-      window.removeEventListener('resize', setCanvasSize)
       cancelAnimationFrame(animationFrame)
     }
-  }, [])
+  }, [dimensions])
 
   return (
     <motion.div
+      ref={containerRef}
       initial={{ opacity: 0, scaleY: 0 }}
       animate={{ opacity: 1, scaleY: 1 }}
       transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
@@ -261,7 +272,7 @@ export function PoolHeader() {
       <canvas
         ref={canvasRef}
         className="w-full h-full"
-        style={{ display: 'block' }}
+        style={{ display: 'block', width: dimensions.width, height: dimensions.height }}
       />
 
       {/* Pool edge effect */}
