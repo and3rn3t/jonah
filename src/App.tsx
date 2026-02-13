@@ -315,19 +315,22 @@ function App() {
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isOwner, setIsOwner] = useState(false)
   const [ownerEmail, setOwnerEmail] = useState<string>('')
+
+  // Admin panel is always available - it has its own password protection
+  const showAdminPanel = true
 
   useEffect(() => {
     const checkOwnership = async () => {
       try {
-        const user = await window.spark.user()
-        setIsOwner(user?.isOwner || false)
-        if (user?.email) {
-          setOwnerEmail(user.email)
+        if (typeof window !== 'undefined' && window.spark?.user) {
+          const user = await window.spark.user()
+          if (user?.email) {
+            setOwnerEmail(user.email)
+          }
         }
       } catch {
-        setIsOwner(false)
+        // Not running in Spark environment - that's fine
       }
     }
     checkOwnership()
@@ -843,7 +846,7 @@ Create a concise, friendly email notification (subject and body) that informs th
         </footer>
       </motion.div>
 
-      {isOwner && content && (
+      {showAdminPanel && content && (
         <Suspense fallback={<div className="fixed bottom-4 right-4 p-4 bg-card rounded-lg shadow-lg">Loading admin...</div>}>
           <AdminPanel content={content} onContentUpdate={handleContentUpdate} />
         </Suspense>
