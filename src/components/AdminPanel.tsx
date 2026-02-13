@@ -467,45 +467,25 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
           </DialogHeader>
 
           <Tabs defaultValue="profile" className="w-full">
-            <div className="mb-4 flex flex-wrap gap-1 rounded-lg bg-muted p-1">
-              <TabsList className="contents">
-                <TabsTrigger value="profile" className="rounded-md px-3 py-1.5">
-                  Profile
-                </TabsTrigger>
-                <TabsTrigger value="anime" className="rounded-md px-3 py-1.5">
-                  Anime
-                </TabsTrigger>
-                <TabsTrigger value="swimming" className="rounded-md px-3 py-1.5">
-                  Swimming
-                </TabsTrigger>
-                <TabsTrigger value="goals" className="rounded-md px-3 py-1.5">
-                  Goals
-                </TabsTrigger>
-                <TabsTrigger value="timeline" className="rounded-md px-3 py-1.5">
-                  Timeline
-                </TabsTrigger>
-                <TabsTrigger value="photos" className="rounded-md px-3 py-1.5">
-                  Photos
-                </TabsTrigger>
-                <TabsTrigger value="about" className="rounded-md px-3 py-1.5">
-                  About
-                </TabsTrigger>
-                <TabsTrigger value="social" className="rounded-md px-3 py-1.5">
-                  Social
-                </TabsTrigger>
-                <TabsTrigger value="messages" className="relative rounded-md px-3 py-1.5">
-                  Messages
-                  {unreadCount > 0 && (
-                    <Badge className="bg-destructive text-destructive-foreground absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full p-0 text-xs">
-                      {unreadCount}
-                    </Badge>
-                  )}
-                </TabsTrigger>
-                <TabsTrigger value="settings" className="rounded-md px-3 py-1.5">
-                  Settings
-                </TabsTrigger>
-              </TabsList>
-            </div>
+            <TabsList className="grid h-auto w-full grid-cols-5 gap-1 p-1 mb-4">
+              <TabsTrigger value="profile">Profile</TabsTrigger>
+              <TabsTrigger value="anime">Anime</TabsTrigger>
+              <TabsTrigger value="swimming">Swimming</TabsTrigger>
+              <TabsTrigger value="goals">Goals</TabsTrigger>
+              <TabsTrigger value="timeline">Timeline</TabsTrigger>
+              <TabsTrigger value="photos">Photos</TabsTrigger>
+              <TabsTrigger value="about">About</TabsTrigger>
+              <TabsTrigger value="social">Social</TabsTrigger>
+              <TabsTrigger value="messages" className="relative">
+                Messages
+                {unreadCount > 0 && (
+                  <Badge className="bg-destructive text-destructive-foreground absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full p-0 text-xs">
+                    {unreadCount}
+                  </Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="settings">Settings</TabsTrigger>
+            </TabsList>
 
             <TabsContent value="profile" className="space-y-4">
               <Card>
