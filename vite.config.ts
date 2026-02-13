@@ -22,4 +22,16 @@ export default defineConfig({
       '@': resolve(projectRoot, 'src')
     }
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom'],
+          'vendor-ui': ['@radix-ui/react-dialog', '@radix-ui/react-tabs', '@radix-ui/react-select', '@radix-ui/react-dropdown-menu'],
+          'vendor-motion': ['framer-motion'],
+          'vendor-charts': ['recharts', 'd3'],
+        }
+      }
+    }
+  }
 });

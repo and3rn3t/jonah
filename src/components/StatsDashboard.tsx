@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { TrendUp, TrendDown, Trophy, Target, Timer, Flame } from '@phosphor-icons/react'
+import { TrendDown, Trophy, Target, Timer, Flame } from '@phosphor-icons/react'
 import type { TimelineEvent } from '@/lib/types'
 import { motion } from 'framer-motion'
 
@@ -32,7 +32,8 @@ export function StatsDashboard({ events }: StatsDashboardProps) {
     return parseFloat(parts[0])
   }
 
-  const formatTime = (seconds: number): string => {
+  // Utility function for future use
+  const _formatTime = (seconds: number): string => {
     if (seconds === 0) return 'N/A'
     if (seconds >= 60) {
       const mins = Math.floor(seconds / 60)
@@ -220,13 +221,19 @@ export function StatsDashboard({ events }: StatsDashboardProps) {
       </div>
 
       <Tabs defaultValue="improvements" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="improvements">Improvements</TabsTrigger>
-          <TabsTrigger value="strokes">By Stroke</TabsTrigger>
-          <TabsTrigger value="activity">Activity</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 h-auto">
+          <TabsTrigger value="improvements" className="text-xs sm:text-sm py-2 sm:py-2.5 px-1 sm:px-3">
+            Improvements
+          </TabsTrigger>
+          <TabsTrigger value="strokes" className="text-xs sm:text-sm py-2 sm:py-2.5 px-1 sm:px-3">
+            By Stroke
+          </TabsTrigger>
+          <TabsTrigger value="activity" className="text-xs sm:text-sm py-2 sm:py-2.5 px-1 sm:px-3">
+            Activity
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="improvements" className="space-y-4 mt-6">
+        <TabsContent value="improvements" className="space-y-4 mt-4 sm:mt-6">
           <Card className="border-2">
             <CardHeader>
               <CardTitle>Top Improvements</CardTitle>
@@ -245,7 +252,7 @@ export function StatsDashboard({ events }: StatsDashboardProps) {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.3, delay: index * 0.05 }}
                   >
-                    <Card className="bg-gradient-to-r from-accent/5 to-transparent border hover:shadow-lg transition-all">
+                    <Card className="bg-linear-to-r from-accent/5 to-transparent border hover:shadow-lg transition-all">
                       <CardContent className="pt-6">
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex-1">
@@ -321,7 +328,7 @@ export function StatsDashboard({ events }: StatsDashboardProps) {
                           return (
                             <div
                               key={i}
-                              className="flex-1 bg-gradient-to-t from-primary to-accent rounded-t transition-all hover:opacity-80"
+                              className="flex-1 bg-linear-to-t from-primary to-accent rounded-t transition-all hover:opacity-80"
                               style={{ height: `${Math.max(height, 10)}%` }}
                               title={`${event.time} - ${new Date(event.date).toLocaleDateString()}`}
                             />
@@ -376,7 +383,7 @@ export function StatsDashboard({ events }: StatsDashboardProps) {
                         </div>
                         <div className="flex gap-1 h-8 bg-muted rounded-lg overflow-hidden">
                           <div
-                            className="bg-gradient-to-r from-primary to-secondary transition-all"
+                            className="bg-linear-to-r from-primary to-secondary transition-all"
                             style={{ width: `${(month.events / Math.max(...monthlyProgress.map(m => m.events))) * 100}%` }}
                           />
                         </div>

@@ -47,25 +47,25 @@ export function PhotoGallery() {
 
   return (
     <>
-      <div className="flex gap-3 mb-8 justify-center">
+      <div className="flex flex-wrap gap-2 sm:gap-3 mb-6 sm:mb-8 justify-center">
         <Button
           variant={filter === 'all' ? 'default' : 'outline'}
           onClick={() => setFilter('all')}
-          className={filter === 'all' ? 'bg-accent hover:bg-accent/90' : ''}
+          className={`text-sm sm:text-base px-3 sm:px-4 ${filter === 'all' ? 'bg-accent hover:bg-accent/90' : ''}`}
         >
-          All Photos
+          All
         </Button>
         <Button
           variant={filter === 'swimming' ? 'default' : 'outline'}
           onClick={() => setFilter('swimming')}
-          className={filter === 'swimming' ? 'bg-primary hover:bg-primary/90' : ''}
+          className={`text-sm sm:text-base px-3 sm:px-4 ${filter === 'swimming' ? 'bg-primary hover:bg-primary/90' : ''}`}
         >
           Swimming
         </Button>
         <Button
           variant={filter === 'anime' ? 'default' : 'outline'}
           onClick={() => setFilter('anime')}
-          className={filter === 'anime' ? 'bg-secondary hover:bg-secondary/90 text-secondary-foreground' : ''}
+          className={`text-sm sm:text-base px-3 sm:px-4 ${filter === 'anime' ? 'bg-secondary hover:bg-secondary/90 text-secondary-foreground' : ''}`}
         >
           Anime
         </Button>
@@ -104,13 +104,13 @@ export function PhotoGallery() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="relative w-full h-full bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
+                  <div className="relative w-full h-full bg-linear-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
                     <div className="text-6xl group-hover:scale-110 transition-transform duration-300">
                       {photo.category === 'swimming' ? '🏊' : '📺'}
                     </div>
                   </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
                   <p className="text-white text-sm font-semibold line-clamp-2">{photo.title}</p>
                 </div>
@@ -195,7 +195,7 @@ export function PhotoGallery() {
                     />
                   </div>
                 ) : (
-                  <div className="bg-gradient-to-br from-primary/20 to-secondary/20 aspect-video flex items-center justify-center">
+                  <div className="bg-linear-to-br from-primary/20 to-secondary/20 aspect-video flex items-center justify-center">
                     <div className="text-9xl">
                       {selectedPhoto.category === 'swimming' ? '🏊' : '📺'}
                     </div>

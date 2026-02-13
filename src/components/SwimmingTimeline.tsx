@@ -109,9 +109,10 @@ export function SwimmingTimeline({ events }: SwimmingTimelineProps) {
 
   return (
     <div className="relative">
-      <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-accent via-primary to-secondary opacity-30" />
+      {/* Timeline line - hidden on small mobile, visible on sm+ */}
+      <div className="hidden sm:block absolute left-8 top-0 bottom-0 w-0.5 bg-linear-to-b from-accent via-primary to-secondary opacity-30" />
       
-      <div className="space-y-8">
+      <div className="space-y-4 sm:space-y-8">
         {sortedEvents.map((event, index) => {
           const Icon = getEventIcon(event.eventType)
           const colorClass = getEventColor(event.eventType)
@@ -123,42 +124,47 @@ export function SwimmingTimeline({ events }: SwimmingTimelineProps) {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="relative pl-20"
+              className="relative sm:pl-20"
             >
-              <div className={`absolute left-0 w-16 h-16 rounded-full border-4 ${colorClass} flex items-center justify-center shadow-lg z-10`}>
+              {/* Mobile: inline icon badge, Desktop: positioned left icon */}
+              <div className={`hidden sm:flex absolute left-0 w-16 h-16 rounded-full border-4 ${colorClass} items-center justify-center shadow-lg z-10`}>
                 <Icon size={28} weight="duotone" />
               </div>
 
               <Card className="hover:shadow-xl hover:shadow-accent/10 transition-all duration-300 border-2">
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-4 flex-wrap">
+                <CardHeader className="pb-3 sm:pb-6">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
                     <div className="flex-1">
+                      {/* Mobile: show icon inline with date */}
                       <div className="flex items-center gap-2 mb-2">
-                        <CalendarBlank size={16} className="text-muted-foreground" />
+                        <div className={`flex sm:hidden w-8 h-8 rounded-full border-2 ${colorClass} items-center justify-center`}>
+                          <Icon size={16} weight="duotone" />
+                        </div>
+                        <CalendarBlank size={16} className="text-muted-foreground hidden sm:block" />
                         <span className="text-sm text-muted-foreground">
-                          {format(new Date(event.date), 'MMMM d, yyyy')}
+                          {format(new Date(event.date), 'MMM d, yyyy')}
                         </span>
                       </div>
-                      <CardTitle className="text-xl mb-2">{event.title}</CardTitle>
-                      <div className="flex flex-wrap gap-2">
-                        <Badge variant={getEventBadgeVariant(event.eventType)}>
+                      <CardTitle className="text-lg sm:text-xl mb-2">{event.title}</CardTitle>
+                      <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                        <Badge variant={getEventBadgeVariant(event.eventType)} className="text-xs sm:text-sm">
                           {getEventLabel(event.eventType)}
                         </Badge>
-                        <Badge variant="outline" className="border-primary/30">
+                        <Badge variant="outline" className="border-primary/30 text-xs sm:text-sm">
                           {event.stroke}
                         </Badge>
                         {event.placement && (
-                          <Badge variant="secondary" className="bg-accent/20 text-accent border-accent/30">
+                          <Badge variant="secondary" className="bg-accent/20 text-accent border-accent/30 text-xs sm:text-sm">
                             {event.placement}
                           </Badge>
                         )}
                       </div>
                     </div>
                     
-                    <div className="text-right">
-                      <div className="text-3xl font-bold text-primary">{event.time}</div>
+                    <div className="text-left sm:text-right mt-2 sm:mt-0">
+                      <div className="text-2xl sm:text-3xl font-bold text-primary">{event.time}</div>
                       {improvement && (
-                        <div className={`text-sm font-semibold mt-1 ${event.previousTime && calculateImprovement(event.time, event.previousTime)?.includes('faster') ? 'text-accent' : 'text-muted-foreground'}`}>
+                        <div className={`text-xs sm:text-sm font-semibold mt-1 ${event.previousTime && calculateImprovement(event.time, event.previousTime)?.includes('faster') ? 'text-accent' : 'text-muted-foreground'}`}>
                           {improvement}
                         </div>
                       )}
@@ -166,18 +172,18 @@ export function SwimmingTimeline({ events }: SwimmingTimelineProps) {
                   </div>
                 </CardHeader>
                 
-                <CardContent>
-                  <p className="text-muted-foreground mb-3">{event.description}</p>
+                <CardContent className="pt-0">
+                  <p className="text-sm sm:text-base text-muted-foreground mb-3">{event.description}</p>
                   
                   {event.location && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
                       <MapPin size={16} weight="duotone" />
                       <span>{event.location}</span>
                     </div>
                   )}
 
                   {event.previousTime && (
-                    <div className="mt-3 pt-3 border-t flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="mt-3 pt-3 border-t flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
                       <TrendUp size={16} weight="duotone" className="text-accent" />
                       <span>Previous: {event.previousTime}</span>
                     </div>

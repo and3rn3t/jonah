@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Plus, Trash, PencilSimple, FloppyDisk, Gear, X, Star, Clock, LockKey, Eye, EyeSlash, Envelope, Upload, Images, ChartLineUp, CalendarBlank, Target } from '@phosphor-icons/react'
+import { Plus, Trash, PencilSimple, FloppyDisk, Gear, X, Star, LockKey, Eye, EyeSlash, Envelope, Upload, Images, ChartLineUp, CalendarBlank, Target } from '@phosphor-icons/react'
 import { useKV } from '@github/spark/hooks'
 import { toast } from 'sonner'
 import type { SiteContent, ContactMessage, TimelineEvent, SwimmingGoal } from '@/lib/types'
@@ -1092,7 +1092,7 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
+                        <div className="w-full h-full bg-linear-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
                           <div className="text-6xl">
                             {photo.category === 'swimming' ? '🏊' : '📺'}
                           </div>

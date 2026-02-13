@@ -59,16 +59,17 @@ export function SwimmingGoals({ goals }: SwimmingGoalsProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {activeGoals.length > 0 && (
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           <div className="flex items-center gap-2">
-            <Target size={24} weight="duotone" className="text-accent" />
-            <h3 className="text-xl font-semibold">Active Goals</h3>
-            <Badge variant="secondary">{activeGoals.length}</Badge>
+            <Target size={20} className="text-accent sm:hidden" />
+            <Target size={24} weight="duotone" className="text-accent hidden sm:block" />
+            <h3 className="text-lg sm:text-xl font-semibold">Active Goals</h3>
+            <Badge variant="secondary" className="text-xs sm:text-sm">{activeGoals.length}</Badge>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
             {activeGoals.map((goal, index) => {
               const progress = calculateProgress(goal.currentBest, goal.targetTime)
               const deadlineClose = isDeadlineClose(goal.deadline)
@@ -150,7 +151,7 @@ export function SwimmingGoals({ goals }: SwimmingGoalsProps) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
               >
-                <Card className="h-full border-2 border-secondary/30 bg-gradient-to-br from-secondary/5 to-transparent">
+                <Card className="h-full border-2 border-secondary/30 bg-linear-to-br from-secondary/5 to-transparent">
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <div className="flex-1">

@@ -136,3 +136,73 @@ h1, h2, h3, h4, h5, h6 {
     radial-gradient(circle at 40% 80%, oklch(0.65 0.15 200 / 0.15) 0%, transparent 50%),
     var(--background);
 }
+
+/* Mobile-specific optimizations */
+@supports (padding: env(safe-area-inset-bottom)) {
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Improve touch targets for mobile */
+@media (pointer: coarse) {
+  button, 
+  [role="button"],
+  a,
+  input[type="submit"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .touch-target-lg {
+    min-height: 48px;
+    min-width: 48px;
+  }
+}
+
+/* Prevent text selection on interactive elements for cleaner mobile feel */
+@media (pointer: coarse) {
+  button,
+  [role="button"] {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Smooth scrolling for better mobile experience */
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent pull-to-refresh on mobile when scrolling up */
+body {
+  overscroll-behavior-y: contain;
+}
+
+/* Mobile card hover prevention - hover effects only on non-touch */
+@media (hover: none) {
+  .hover\:shadow-xl:hover,
+  .hover\:-translate-y-1:hover {
+    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+    transform: none;
+  }
+}
+
+/* Better focus styles for mobile accessibility */
+@media (pointer: coarse) {
+  :focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+/* Responsive text adjustments for very small screens */
+@media (max-width: 360px) {
+  html {
+    font-size: 14px;
+  }
+}

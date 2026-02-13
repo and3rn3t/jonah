@@ -302,14 +302,14 @@ export function PoolHeader() {
               repeat: Infinity,
               ease: 'easeInOut'
             }}
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-full blur-sm"
+            className="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent rounded-full blur-sm"
           />
           <div className="absolute top-0 left-1/2 w-8 h-4 bg-sky-200/50 rounded-full -translate-x-1/2" />
           <div className="absolute top-2 left-1/2 w-6 h-3 bg-sky-300/40 rounded-full -translate-x-1/2" />
         </div>
       </motion.div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white/50 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-white/50 to-transparent" />
     </motion.div>
   )
 }

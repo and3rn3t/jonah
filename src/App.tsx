@@ -1,5 +1,5 @@
 import { motion, Variants } from 'framer-motion'
-import { Television, Waves, User, Star, Trophy, Clock, DiscordLogo, InstagramLogo, TwitchLogo, YoutubeLogo, PaperPlaneTilt, Images, XLogo, TiktokLogo, Envelope, Bell, ChartLineUp, ChartBar, Target } from '@phosphor-icons/react'
+import { Television, Waves, User, Star, Trophy, Clock, DiscordLogo, InstagramLogo, TwitchLogo, YoutubeLogo, PaperPlaneTilt, Images, XLogo, TiktokLogo, ChartLineUp, ChartBar, Target } from '@phosphor-icons/react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -8,10 +8,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react'
 import { toast } from 'sonner'
 import { PhotoGallery } from '@/components/PhotoGallery'
-import { AdminPanel } from '@/components/AdminPanel'
+const AdminPanel = lazy(() => import('@/components/AdminPanel').then(m => ({ default: m.AdminPanel })))
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { SwimmingTimeline } from '@/components/SwimmingTimeline'
 import { StatsDashboard } from '@/components/StatsDashboard'
@@ -309,8 +309,8 @@ const defaultGoals: SwimmingGoal[] = [
 
 function App() {
   const [content, setContent] = useKV<SiteContent>('site-content', defaultContent)
-  const [messages, setMessages] = useKV<ContactMessage[]>('contact-messages', [])
-  const [goals, setGoals] = useKV<SwimmingGoal[]>('swimming-goals', defaultGoals)
+  const [, setMessages] = useKV<ContactMessage[]>('contact-messages', [])
+  const [goals] = useKV<SwimmingGoal[]>('swimming-goals', defaultGoals)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
@@ -385,7 +385,7 @@ Create a concise, friendly email notification (subject and body) that informs th
         toast.success(`Message sent! Owner will be notified at ${ownerEmail} 📧`, {
           description: subject
         })
-      } catch (error) {
+      } catch {
         toast.success('Message sent! I\'ll get back to you soon! 🎉')
       }
     } else {
@@ -419,8 +419,8 @@ Create a concise, friendly email notification (subject and body) that informs th
         }
       case 'Instagram':
         return {
-          color: 'hover:bg-gradient-to-tr hover:from-[#f9ce34] hover:via-[#ee2a7b] hover:to-[#6228d7] hover:text-white',
-          bgColor: 'bg-gradient-to-tr from-[#f9ce34]/10 via-[#ee2a7b]/10 to-[#6228d7]/10'
+          color: 'hover:bg-linear-to-tr hover:from-[#f9ce34] hover:via-[#ee2a7b] hover:to-[#6228d7] hover:text-white',
+          bgColor: 'bg-linear-to-tr from-[#f9ce34]/10 via-[#ee2a7b]/10 to-[#6228d7]/10'
         }
       case 'Twitch':
         return {
@@ -450,9 +450,9 @@ Create a concise, friendly email notification (subject and body) that informs th
     }
   }
 
-  const handleContentUpdate = (newContent: SiteContent) => {
+  const handleContentUpdate = useCallback((newContent: SiteContent) => {
     setContent(newContent)
-  }
+  }, [setContent])
 
   return (
     <div className="min-h-screen gradient-mesh">
@@ -462,22 +462,22 @@ Create a concise, friendly email notification (subject and body) that informs th
         animate="visible"
         variants={containerVariants}
       >
-        <section className="py-16 md:py-24 px-4 wave-pattern">
+        <section className="pt-20 pb-12 sm:py-16 md:py-24 px-4 wave-pattern">
           <motion.div variants={itemVariants} className="max-w-6xl mx-auto text-center">
-            <div className="flex justify-center mb-6">
-              <Avatar className="w-24 h-24 md:w-32 md:h-32 border-4 border-accent shadow-lg">
-                <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-4xl font-bold">
+            <div className="flex justify-center mb-4 sm:mb-6">
+              <Avatar className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 border-4 border-accent shadow-lg">
+                <AvatarFallback className="bg-linear-to-br from-primary to-secondary text-white text-2xl sm:text-4xl font-bold">
                   {content?.profile?.initials || 'AK'}
                 </AvatarFallback>
               </Avatar>
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold tracking-tight mb-3 sm:mb-4 bg-linear-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
               Hey, I'm {content?.profile?.name || 'Alex'}!
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto px-2">
               {content?.profile?.age || 14} years old • {content?.profile?.tagline || 'Anime enthusiast • Competitive swimmer'}
             </p>
-            <p className="mt-4 text-base md:text-lg text-foreground/80 max-w-xl mx-auto">
+            <p className="mt-3 sm:mt-4 text-sm sm:text-base md:text-lg text-foreground/80 max-w-xl mx-auto px-2">
               {content?.profile?.bio || 'Welcome to my corner of the internet!'}
             </p>
           </motion.div>
@@ -487,14 +487,15 @@ Create a concise, friendly email notification (subject and body) that informs th
 
         <Separator className="max-w-6xl mx-auto" />
 
-        <section className="py-12 md:py-20 px-4">
+        <section className="py-10 sm:py-12 md:py-20 px-4">
           <div className="max-w-6xl mx-auto">
-            <motion.div variants={itemVariants} className="mb-8 md:mb-12">
-              <div className="flex items-center gap-3 mb-3">
-                <Television size={32} weight="duotone" className="text-accent" />
-                <h2 className="text-3xl md:text-4xl font-bold">Favorite Anime</h2>
+            <motion.div variants={itemVariants} className="mb-6 sm:mb-8 md:mb-12">
+              <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                <Television size={28} className="text-accent sm:hidden" />
+                <Television size={32} weight="duotone" className="text-accent hidden sm:block" />
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">Favorite Anime</h2>
               </div>
-              <p className="text-muted-foreground">The shows that got me hooked on anime</p>
+              <p className="text-sm sm:text-base text-muted-foreground">The shows that got me hooked on anime</p>
             </motion.div>
 
             <motion.div
@@ -531,14 +532,15 @@ Create a concise, friendly email notification (subject and body) that informs th
 
         <Separator className="max-w-6xl mx-auto" />
 
-        <section className="py-12 md:py-20 px-4">
+        <section className="py-10 sm:py-12 md:py-20 px-4">
           <div className="max-w-6xl mx-auto">
-            <motion.div variants={itemVariants} className="mb-8 md:mb-12">
-              <div className="flex items-center gap-3 mb-3">
-                <Waves size={32} weight="duotone" className="text-primary" />
-                <h2 className="text-3xl md:text-4xl font-bold">Swimming</h2>
+            <motion.div variants={itemVariants} className="mb-6 sm:mb-8 md:mb-12">
+              <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                <Waves size={28} className="text-primary sm:hidden" />
+                <Waves size={32} weight="duotone" className="text-primary hidden sm:block" />
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">Swimming</h2>
               </div>
-              <p className="text-muted-foreground">My times and achievements in the pool</p>
+              <p className="text-sm sm:text-base text-muted-foreground">My times and achievements in the pool</p>
             </motion.div>
 
             <motion.div variants={containerVariants} className="space-y-6">
@@ -573,7 +575,7 @@ Create a concise, friendly email notification (subject and body) that informs th
               </div>
 
               <motion.div variants={itemVariants}>
-                <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 border-2 border-primary/20">
+                <Card className="bg-linear-to-br from-primary/5 to-secondary/5 border-2 border-primary/20">
                   <CardHeader>
                     <CardTitle>Favorite Strokes</CardTitle>
                   </CardHeader>
@@ -594,14 +596,15 @@ Create a concise, friendly email notification (subject and body) that informs th
 
         <Separator className="max-w-6xl mx-auto" />
 
-        <section className="py-12 md:py-20 px-4">
+        <section className="py-10 sm:py-12 md:py-20 px-4">
           <div className="max-w-6xl mx-auto">
-            <motion.div variants={itemVariants} className="mb-8 md:mb-12">
-              <div className="flex items-center gap-3 mb-3">
-                <Target size={32} weight="duotone" className="text-accent" />
-                <h2 className="text-3xl md:text-4xl font-bold">Swimming Goals</h2>
+            <motion.div variants={itemVariants} className="mb-6 sm:mb-8 md:mb-12">
+              <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                <Target size={28} className="text-accent sm:hidden" />
+                <Target size={32} weight="duotone" className="text-accent hidden sm:block" />
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">Swimming Goals</h2>
               </div>
-              <p className="text-muted-foreground">Target times I'm working towards</p>
+              <p className="text-sm sm:text-base text-muted-foreground">Target times I'm working towards</p>
             </motion.div>
 
             <motion.div variants={itemVariants}>
@@ -612,14 +615,15 @@ Create a concise, friendly email notification (subject and body) that informs th
 
         <Separator className="max-w-6xl mx-auto" />
 
-        <section className="py-12 md:py-20 px-4">
+        <section className="py-10 sm:py-12 md:py-20 px-4">
           <div className="max-w-6xl mx-auto">
-            <motion.div variants={itemVariants} className="mb-8 md:mb-12">
-              <div className="flex items-center gap-3 mb-3">
-                <ChartBar size={32} weight="duotone" className="text-accent" />
-                <h2 className="text-3xl md:text-4xl font-bold">Performance Stats</h2>
+            <motion.div variants={itemVariants} className="mb-6 sm:mb-8 md:mb-12">
+              <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                <ChartBar size={28} className="text-accent sm:hidden" />
+                <ChartBar size={32} weight="duotone" className="text-accent hidden sm:block" />
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">Performance Stats</h2>
               </div>
-              <p className="text-muted-foreground">Track your improvements and analyze your progress</p>
+              <p className="text-sm sm:text-base text-muted-foreground">Track your improvements and analyze your progress</p>
             </motion.div>
 
             <motion.div variants={itemVariants}>
@@ -630,14 +634,15 @@ Create a concise, friendly email notification (subject and body) that informs th
 
         <Separator className="max-w-6xl mx-auto" />
 
-        <section className="py-12 md:py-20 px-4">
+        <section className="py-10 sm:py-12 md:py-20 px-4">
           <div className="max-w-6xl mx-auto">
-            <motion.div variants={itemVariants} className="mb-8 md:mb-12">
-              <div className="flex items-center gap-3 mb-3">
-                <ChartLineUp size={32} weight="duotone" className="text-accent" />
-                <h2 className="text-3xl md:text-4xl font-bold">Progress Timeline</h2>
+            <motion.div variants={itemVariants} className="mb-6 sm:mb-8 md:mb-12">
+              <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                <ChartLineUp size={28} className="text-accent sm:hidden" />
+                <ChartLineUp size={32} weight="duotone" className="text-accent hidden sm:block" />
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">Progress Timeline</h2>
               </div>
-              <p className="text-muted-foreground">My swimming journey and achievements over time</p>
+              <p className="text-sm sm:text-base text-muted-foreground">My swimming journey and achievements over time</p>
             </motion.div>
 
             <motion.div variants={itemVariants}>
@@ -648,14 +653,15 @@ Create a concise, friendly email notification (subject and body) that informs th
 
         <Separator className="max-w-6xl mx-auto" />
 
-        <section className="py-12 md:py-20 px-4">
+        <section className="py-10 sm:py-12 md:py-20 px-4">
           <div className="max-w-6xl mx-auto">
-            <motion.div variants={itemVariants} className="mb-8 md:mb-12">
-              <div className="flex items-center gap-3 mb-3">
-                <Images size={32} weight="duotone" className="text-accent" />
-                <h2 className="text-3xl md:text-4xl font-bold">Photo Gallery</h2>
+            <motion.div variants={itemVariants} className="mb-6 sm:mb-8 md:mb-12">
+              <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                <Images size={28} className="text-accent sm:hidden" />
+                <Images size={32} weight="duotone" className="text-accent hidden sm:block" />
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">Photo Gallery</h2>
               </div>
-              <p className="text-muted-foreground">My favorite moments from swimming meets and anime</p>
+              <p className="text-sm sm:text-base text-muted-foreground">My favorite moments from swimming meets and anime</p>
             </motion.div>
 
             <motion.div variants={itemVariants}>
@@ -666,14 +672,15 @@ Create a concise, friendly email notification (subject and body) that informs th
 
         <Separator className="max-w-6xl mx-auto" />
 
-        <section className="py-12 md:py-20 px-4">
+        <section className="py-10 sm:py-12 md:py-20 px-4">
           <div className="max-w-6xl mx-auto">
-            <motion.div variants={itemVariants} className="mb-8 md:mb-12">
-              <div className="flex items-center gap-3 mb-3">
-                <User size={32} weight="duotone" className="text-accent" />
-                <h2 className="text-3xl md:text-4xl font-bold">About Me</h2>
+            <motion.div variants={itemVariants} className="mb-6 sm:mb-8 md:mb-12">
+              <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                <User size={28} className="text-accent sm:hidden" />
+                <User size={32} weight="duotone" className="text-accent hidden sm:block" />
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">About Me</h2>
               </div>
-              <p className="text-muted-foreground">A bit more about what I enjoy</p>
+              <p className="text-sm sm:text-base text-muted-foreground">A bit more about what I enjoy</p>
             </motion.div>
 
             <motion.div variants={itemVariants}>
@@ -713,17 +720,18 @@ Create a concise, friendly email notification (subject and body) that informs th
 
         <Separator className="max-w-6xl mx-auto" />
 
-        <section className="py-12 md:py-20 px-4">
+        <section className="py-10 sm:py-12 md:py-20 px-4">
           <div className="max-w-6xl mx-auto">
-            <motion.div variants={itemVariants} className="mb-8 md:mb-12 text-center">
-              <div className="flex items-center justify-center gap-3 mb-3">
-                <PaperPlaneTilt size={32} weight="duotone" className="text-accent" />
-                <h2 className="text-3xl md:text-4xl font-bold">Let's Connect!</h2>
+            <motion.div variants={itemVariants} className="mb-6 sm:mb-8 md:mb-12 text-center">
+              <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                <PaperPlaneTilt size={28} className="text-accent sm:hidden" />
+                <PaperPlaneTilt size={32} weight="duotone" className="text-accent hidden sm:block" />
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">Let's Connect!</h2>
               </div>
-              <p className="text-muted-foreground">Find me on social media or send me a message</p>
+              <p className="text-sm sm:text-base text-muted-foreground">Find me on social media or send me a message</p>
             </motion.div>
 
-            <div className="grid lg:grid-cols-2 gap-8">
+            <div className="grid lg:grid-cols-2 gap-6 sm:gap-8">
               <motion.div variants={itemVariants}>
                 <Card className="h-full border-2">
                   <CardHeader>
@@ -836,7 +844,9 @@ Create a concise, friendly email notification (subject and body) that informs th
       </motion.div>
 
       {isOwner && content && (
-        <AdminPanel content={content} onContentUpdate={handleContentUpdate} />
+        <Suspense fallback={<div className="fixed bottom-4 right-4 p-4 bg-card rounded-lg shadow-lg">Loading admin...</div>}>
+          <AdminPanel content={content} onContentUpdate={handleContentUpdate} />
+        </Suspense>
       )}
     </div>
   )
