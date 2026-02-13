@@ -467,45 +467,47 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
           </DialogHeader>
 
           <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="flex h-auto flex-wrap gap-1 p-1">
-              <TabsTrigger value="profile" className="px-3">
-                Profile
-              </TabsTrigger>
-              <TabsTrigger value="anime" className="px-3">
-                Anime
-              </TabsTrigger>
-              <TabsTrigger value="swimming" className="px-3">
-                Swimming
-              </TabsTrigger>
-              <TabsTrigger value="goals" className="px-3">
-                Goals
-              </TabsTrigger>
-              <TabsTrigger value="timeline" className="px-3">
-                Timeline
-              </TabsTrigger>
-              <TabsTrigger value="photos" className="px-3">
-                Photos
-              </TabsTrigger>
-              <TabsTrigger value="about" className="px-3">
-                About
-              </TabsTrigger>
-              <TabsTrigger value="social" className="px-3">
-                Social
-              </TabsTrigger>
-              <TabsTrigger value="messages" className="relative px-3">
-                Messages
-                {unreadCount > 0 && (
-                  <Badge className="bg-destructive text-destructive-foreground absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full p-0 text-xs">
-                    {unreadCount}
-                  </Badge>
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="settings" className="px-3">
-                Settings
-              </TabsTrigger>
-            </TabsList>
+            <div className="mb-4 flex flex-wrap gap-1 rounded-lg bg-muted p-1">
+              <TabsList className="contents">
+                <TabsTrigger value="profile" className="rounded-md px-3 py-1.5">
+                  Profile
+                </TabsTrigger>
+                <TabsTrigger value="anime" className="rounded-md px-3 py-1.5">
+                  Anime
+                </TabsTrigger>
+                <TabsTrigger value="swimming" className="rounded-md px-3 py-1.5">
+                  Swimming
+                </TabsTrigger>
+                <TabsTrigger value="goals" className="rounded-md px-3 py-1.5">
+                  Goals
+                </TabsTrigger>
+                <TabsTrigger value="timeline" className="rounded-md px-3 py-1.5">
+                  Timeline
+                </TabsTrigger>
+                <TabsTrigger value="photos" className="rounded-md px-3 py-1.5">
+                  Photos
+                </TabsTrigger>
+                <TabsTrigger value="about" className="rounded-md px-3 py-1.5">
+                  About
+                </TabsTrigger>
+                <TabsTrigger value="social" className="rounded-md px-3 py-1.5">
+                  Social
+                </TabsTrigger>
+                <TabsTrigger value="messages" className="relative rounded-md px-3 py-1.5">
+                  Messages
+                  {unreadCount > 0 && (
+                    <Badge className="bg-destructive text-destructive-foreground absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full p-0 text-xs">
+                      {unreadCount}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+                <TabsTrigger value="settings" className="rounded-md px-3 py-1.5">
+                  Settings
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
-            <TabsContent value="profile" className="mt-4 space-y-4">
+            <TabsContent value="profile" className="space-y-4">
               <Card>
                 <CardHeader>
                   <CardTitle>Profile Information</CardTitle>
