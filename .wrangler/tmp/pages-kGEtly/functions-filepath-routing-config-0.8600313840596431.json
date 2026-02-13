@@ -1,0 +1,29 @@
+{
+  "routes": [
+    {
+      "routePath": "/api/kv/:key",
+      "mountPath": "/api/kv",
+      "method": "GET",
+      "module": [
+        "api/kv/[key].ts:onRequestGet"
+      ]
+    },
+    {
+      "routePath": "/api/kv/:key",
+      "mountPath": "/api/kv",
+      "method": "OPTIONS",
+      "module": [
+        "api/kv/[key].ts:onRequestOptions"
+      ]
+    },
+    {
+      "routePath": "/api/kv/:key",
+      "mountPath": "/api/kv",
+      "method": "PUT",
+      "module": [
+        "api/kv/[key].ts:onRequestPut"
+      ]
+    }
+  ],
+  "baseURL": "/"
+}

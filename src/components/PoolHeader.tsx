@@ -1,36 +1,10 @@
 import { motion } from 'framer-motion'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
 export function PoolHeader() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
 
-  // Track container size with ResizeObserver
   useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
-
-    const updateDimensions = () => {
-      const rect = container.getBoundingClientRect()
-      if (rect.width > 0 && rect.height > 0) {
-        setDimensions({ width: rect.width, height: rect.height })
-      }
-    }
-
-    // Initial measurement
-    updateDimensions()
-
-    const resizeObserver = new ResizeObserver(updateDimensions)
-    resizeObserver.observe(container)
-
-    return () => resizeObserver.disconnect()
-  }, [])
-
-  // Run animation when we have valid dimensions
-  useEffect(() => {
-    if (dimensions.width === 0 || dimensions.height === 0) return
-
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -39,19 +13,18 @@ export function PoolHeader() {
 
     let animationFrame: number
     let time = 0
-
-    // Set canvas size based on measured dimensions
-    const dpr = window.devicePixelRatio || 1
-    canvas.width = dimensions.width * dpr
-    canvas.height = dimensions.height * dpr
-    ctx.scale(dpr, dpr)
-
-    const width = dimensions.width
-    const height = dimensions.height
+    let bubblesList: Array<{
+      lane: number
+      x: number
+      y: number
+      radius: number
+      speed: number
+      wobble: number
+      wobbleSpeed: number
+    }> = []
 
     const NUM_LANES = 8
 
-    // Color palettes that lanes cycle through
     const colorPalettes = [
       { water: [14, 165, 233], accent: [56, 189, 248] },   // Sky blue
       { water: [6, 182, 212], accent: [34, 211, 238] },    // Cyan
@@ -66,7 +39,6 @@ export function PoolHeader() {
     const lerp = (a: number, b: number, t: number) => a + (b - a) * t
 
     const getColorForLane = (laneIndex: number, t: number): [number, number, number] => {
-      // Each lane cycles through colors at different phase offsets
       const cycleSpeed = 0.0003
       const phase = (t * cycleSpeed + laneIndex * 0.15) % 1
       const paletteIndex = Math.floor(phase * colorPalettes.length)
@@ -83,33 +55,47 @@ export function PoolHeader() {
       ]
     }
 
-    const laneWidth = width / NUM_LANES
-
-    // Initialize bubbles
-    const bubblesList: Array<{
-      lane: number
-      x: number
-      y: number
-      radius: number
-      speed: number
-      wobble: number
-      wobbleSpeed: number
-    }> = []
-    for (let i = 0; i < 40; i++) {
-      const lane = Math.floor(Math.random() * NUM_LANES)
-      bubblesList.push({
-        lane,
-        x: lane * laneWidth + Math.random() * laneWidth,
-        y: Math.random() * height,
-        radius: 1.5 + Math.random() * 3,
-        speed: 0.4 + Math.random() * 0.6,
-        wobble: Math.random() * Math.PI * 2,
-        wobbleSpeed: 0.02 + Math.random() * 0.02
-      })
+    const initBubbles = (width: number, height: number) => {
+      const laneWidth = width / NUM_LANES
+      bubblesList = []
+      for (let i = 0; i < 40; i++) {
+        const lane = Math.floor(Math.random() * NUM_LANES)
+        bubblesList.push({
+          lane,
+          x: lane * laneWidth + Math.random() * laneWidth,
+          y: Math.random() * height,
+          radius: 1.5 + Math.random() * 3,
+          speed: 0.4 + Math.random() * 0.6,
+          wobble: Math.random() * Math.PI * 2,
+          wobbleSpeed: 0.02 + Math.random() * 0.02
+        })
+      }
     }
 
     const animate = () => {
+      // Get current size on each frame
+      const rect = canvas.getBoundingClientRect()
+      const width = rect.width
+      const height = rect.height
+
+      // Skip if not visible yet
+      if (width === 0 || height === 0) {
+        animationFrame = requestAnimationFrame(animate)
+        return
+      }
+
+      // Update canvas size if needed
+      const dpr = window.devicePixelRatio || 1
+      if (canvas.width !== Math.floor(width * dpr) || canvas.height !== Math.floor(height * dpr)) {
+        canvas.width = Math.floor(width * dpr)
+        canvas.height = Math.floor(height * dpr)
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+        initBubbles(width, height)
+      }
+
       time++
+
+      const laneWidth = width / NUM_LANES
 
       ctx.clearRect(0, 0, width, height)
 
@@ -175,7 +161,6 @@ export function PoolHeader() {
       for (let i = 1; i < NUM_LANES; i++) {
         const laneX = i * laneWidth
 
-        // Main rope
         ctx.save()
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)'
         ctx.lineWidth = 3
@@ -213,8 +198,8 @@ export function PoolHeader() {
 
         if (bubble.y + bubble.radius < 0) {
           bubble.y = height + bubble.radius + Math.random() * 20
-          const laneX = bubble.lane * laneWidth
-          bubble.x = laneX + Math.random() * laneWidth
+          const bubbleLaneX = bubble.lane * laneWidth
+          bubble.x = bubbleLaneX + Math.random() * laneWidth
         }
 
         ctx.beginPath()
@@ -222,7 +207,6 @@ export function PoolHeader() {
         ctx.fillStyle = 'rgba(255, 255, 255, 0.35)'
         ctx.fill()
 
-        // Bubble highlight
         ctx.beginPath()
         ctx.arc(
           bubble.x + wobbleX - bubble.radius * 0.3,
@@ -258,11 +242,10 @@ export function PoolHeader() {
     return () => {
       cancelAnimationFrame(animationFrame)
     }
-  }, [dimensions])
+  }, [])
 
   return (
     <motion.div
-      ref={containerRef}
       initial={{ opacity: 0, scaleY: 0 }}
       animate={{ opacity: 1, scaleY: 1 }}
       transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
@@ -271,8 +254,7 @@ export function PoolHeader() {
     >
       <canvas
         ref={canvasRef}
-        className="w-full h-full"
-        style={{ display: 'block', width: dimensions.width, height: dimensions.height }}
+        className="absolute inset-0 w-full h-full"
       />
 
       {/* Pool edge effect */}
