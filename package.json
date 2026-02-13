@@ -13,7 +13,9 @@
         "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\"",
         "typecheck": "tsc --noEmit",
         "optimize": "vite optimize",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "deploy": "npm run build && npx wrangler pages deploy dist",
+        "pages:dev": "npx wrangler pages dev dist --kv SITE_KV"
     },
     "dependencies": {
         "@github/spark": ">=0.43.1 <1",
@@ -79,6 +81,7 @@
         "zod": "^3.25.76"
     },
     "devDependencies": {
+        "@cloudflare/workers-types": "^4.20241127.0",
         "@eslint/js": "^9.21.0",
         "@tailwindcss/postcss": "^4.1.8",
         "@types/react": "^19.0.10",

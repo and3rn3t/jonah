@@ -17,7 +17,7 @@ import { SwimmingTimeline } from '@/components/SwimmingTimeline'
 import { StatsDashboard } from '@/components/StatsDashboard'
 import { SwimmingGoals } from '@/components/SwimmingGoals'
 import { PoolHeader } from '@/components/PoolHeader'
-import { useKV } from '@github/spark/hooks'
+import { useKV } from '@/hooks/useKV'
 import type { SiteContent, ContactMessage, SwimmingGoal } from '@/lib/types'
 
 const defaultContent: SiteContent = {

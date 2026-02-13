@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Plus, Trash, PencilSimple, FloppyDisk, Gear, X, Star, LockKey, Eye, EyeSlash, Envelope, Upload, Images, ChartLineUp, CalendarBlank, Target } from '@phosphor-icons/react'
-import { useKV } from '@github/spark/hooks'
+import { useKV } from '@/hooks/useKV'
 import { toast } from 'sonner'
 import type { SiteContent, ContactMessage, TimelineEvent, SwimmingGoal } from '@/lib/types'
 import type { Photo } from '@/components/PhotoGallery'
@@ -431,16 +431,18 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
 
       <Dialog open={isOpen} onOpenChange={handleOpenChange}>
         <Button 
-          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl bg-accent hover:bg-accent/90 z-40 relative"
+          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl bg-accent hover:bg-accent/90 z-50"
           size="icon"
           onClick={handleGearClick}
         >
-          <Gear size={24} weight="bold" />
-          {unreadCount > 0 && (
-            <Badge className="absolute -top-1 -right-1 h-6 w-6 flex items-center justify-center p-0 bg-destructive text-destructive-foreground rounded-full border-2 border-background">
-              {unreadCount}
-            </Badge>
-          )}
+          <span className="relative">
+            <Gear size={24} weight="bold" />
+            {unreadCount > 0 && (
+              <Badge className="absolute -top-3 -right-3 h-6 w-6 flex items-center justify-center p-0 bg-destructive text-destructive-foreground rounded-full border-2 border-background">
+                {unreadCount}
+              </Badge>
+            )}
+          </span>
         </Button>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>

@@ -1,6 +1,6 @@
 import { Moon, Sun } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
-import { useKV } from '@github/spark/hooks'
+import { useKV } from '@/hooks/useKV'
 import { useEffect } from 'react'
 
 export function ThemeToggle() {
