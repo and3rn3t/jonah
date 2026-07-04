@@ -1,5 +1,6 @@
 {
     "name": "spark-template",
+    "description": "Personal portfolio for Jonah (GitHub Spark template).",
     "private": true,
     "version": "0.0.0",
     "type": "module",
