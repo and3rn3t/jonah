@@ -1,7 +1,12 @@
 {
     "name": "spark-template",
-    "engines": { "node": ">=24.13.0" },
-    "repository": { "type": "git", "url": "https://github.com/and3rn3t/jonah.git" },
+    "engines": {
+        "node": ">=24.13.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/and3rn3t/jonah.git"
+    },
     "license": "MIT",
     "description": "Personal portfolio for Jonah (GitHub Spark template).",
     "private": true,
@@ -24,7 +29,7 @@
     "dependencies": {
         "@github/spark": ">=0.43.1 <1",
         "@heroicons/react": "^2.2.0",
-        "@phosphor-icons/react": "^2.1.7",
+        "@phosphor-icons/react": "^2.1.10",
         "@radix-ui/colors": "^3.0.0",
         "@radix-ui/react-accordion": "^1.2.3",
         "@radix-ui/react-alert-dialog": "^1.1.6",
