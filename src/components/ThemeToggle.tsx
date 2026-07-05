@@ -16,7 +16,7 @@ export function ThemeToggle() {
   }, [theme])
 
   const toggleTheme = () => {
-    setTheme(currentTheme => currentTheme === 'light' ? 'dark' : 'light')
+    setTheme((currentTheme) => (currentTheme === 'light' ? 'dark' : 'light'))
   }
 
   return (
@@ -24,18 +24,14 @@ export function ThemeToggle() {
       variant="outline"
       size="icon"
       onClick={toggleTheme}
-      className="fixed top-4 right-4 sm:top-6 sm:right-6 z-50 rounded-full w-11 h-11 sm:w-12 sm:h-12 shadow-lg border-2 bg-card hover:bg-accent hover:text-accent-foreground transition-all duration-300 touch-target-lg"
-      style={{ 
+      className="bg-card hover:bg-accent hover:text-accent-foreground touch-target-lg fixed top-4 right-4 z-50 h-11 w-11 rounded-full border-2 shadow-lg transition-all duration-300 sm:top-6 sm:right-6 sm:h-12 sm:w-12"
+      style={{
         top: 'max(env(safe-area-inset-top, 16px), 16px)',
-        right: 'max(env(safe-area-inset-right, 16px), 16px)'
+        right: 'max(env(safe-area-inset-right, 16px), 16px)',
       }}
       aria-label="Toggle theme"
     >
-      {theme === 'light' ? (
-        <Moon size={20} weight="duotone" />
-      ) : (
-        <Sun size={20} weight="duotone" />
-      )}
+      {theme === 'light' ? <Moon size={20} weight="duotone" /> : <Sun size={20} weight="duotone" />}
     </Button>
   )
 }

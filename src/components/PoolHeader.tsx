@@ -26,14 +26,14 @@ export function PoolHeader() {
     const NUM_LANES = 8
 
     const colorPalettes = [
-      { water: [14, 165, 233], accent: [56, 189, 248] },   // Sky blue
-      { water: [6, 182, 212], accent: [34, 211, 238] },    // Cyan
-      { water: [20, 184, 166], accent: [45, 212, 191] },   // Teal
-      { water: [59, 130, 246], accent: [96, 165, 250] },   // Blue
-      { water: [99, 102, 241], accent: [129, 140, 248] },  // Indigo
-      { water: [139, 92, 246], accent: [167, 139, 250] },  // Violet
-      { water: [168, 85, 247], accent: [192, 132, 252] },  // Purple
-      { water: [236, 72, 153], accent: [244, 114, 182] },  // Pink
+      { water: [14, 165, 233], accent: [56, 189, 248] }, // Sky blue
+      { water: [6, 182, 212], accent: [34, 211, 238] }, // Cyan
+      { water: [20, 184, 166], accent: [45, 212, 191] }, // Teal
+      { water: [59, 130, 246], accent: [96, 165, 250] }, // Blue
+      { water: [99, 102, 241], accent: [129, 140, 248] }, // Indigo
+      { water: [139, 92, 246], accent: [167, 139, 250] }, // Violet
+      { water: [168, 85, 247], accent: [192, 132, 252] }, // Purple
+      { water: [236, 72, 153], accent: [244, 114, 182] }, // Pink
     ]
 
     const lerp = (a: number, b: number, t: number) => a + (b - a) * t
@@ -51,7 +51,7 @@ export function PoolHeader() {
       return [
         Math.round(lerp(current[0], next[0], blend)),
         Math.round(lerp(current[1], next[1], blend)),
-        Math.round(lerp(current[2], next[2], blend))
+        Math.round(lerp(current[2], next[2], blend)),
       ]
     }
 
@@ -67,7 +67,7 @@ export function PoolHeader() {
           radius: 1.5 + Math.random() * 3,
           speed: 0.4 + Math.random() * 0.6,
           wobble: Math.random() * Math.PI * 2,
-          wobbleSpeed: 0.02 + Math.random() * 0.02
+          wobbleSpeed: 0.02 + Math.random() * 0.02,
         })
       }
     }
@@ -107,8 +107,14 @@ export function PoolHeader() {
         // Create gradient for water depth effect
         const gradient = ctx.createLinearGradient(0, 0, 0, height)
         gradient.addColorStop(0, `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.85)`)
-        gradient.addColorStop(0.5, `rgba(${Math.max(0, color[0] - 20)}, ${Math.max(0, color[1] - 20)}, ${Math.max(0, color[2] - 10)}, 0.9)`)
-        gradient.addColorStop(1, `rgba(${Math.max(0, color[0] - 40)}, ${Math.max(0, color[1] - 40)}, ${Math.max(0, color[2] - 20)}, 0.95)`)
+        gradient.addColorStop(
+          0.5,
+          `rgba(${Math.max(0, color[0] - 20)}, ${Math.max(0, color[1] - 20)}, ${Math.max(0, color[2] - 10)}, 0.9)`
+        )
+        gradient.addColorStop(
+          1,
+          `rgba(${Math.max(0, color[0] - 40)}, ${Math.max(0, color[1] - 40)}, ${Math.max(0, color[2] - 20)}, 0.95)`
+        )
 
         ctx.fillStyle = gradient
         ctx.fillRect(laneX, 0, laneWidth, height)
@@ -124,8 +130,10 @@ export function PoolHeader() {
           ctx.moveTo(laneX, waveY)
 
           for (let x = 0; x <= laneWidth; x += 2) {
-            const y = waveY + Math.sin((x + laneX) * 0.02 + waveOffset + w) * 8
-              + Math.sin((x + laneX) * 0.01 + waveOffset * 0.7) * 4
+            const y =
+              waveY +
+              Math.sin((x + laneX) * 0.02 + waveOffset + w) * 8 +
+              Math.sin((x + laneX) * 0.01 + waveOffset * 0.7) * 4
             ctx.lineTo(laneX + x, y)
           }
 
@@ -144,8 +152,11 @@ export function PoolHeader() {
         const causticOffset = time * 0.02
         for (let cy = 0; cy < height; cy += 20) {
           for (let cx = 0; cx < laneWidth; cx += 20) {
-            const shimmer = Math.sin((cx + laneX) * 0.1 + causticOffset) *
-              Math.cos(cy * 0.1 + causticOffset * 0.8) * 0.5 + 0.5
+            const shimmer =
+              Math.sin((cx + laneX) * 0.1 + causticOffset) *
+                Math.cos(cy * 0.1 + causticOffset * 0.8) *
+                0.5 +
+              0.5
             if (shimmer > 0.7) {
               ctx.beginPath()
               ctx.arc(laneX + cx + 10, cy + 10, 3 + shimmer * 2, 0, Math.PI * 2)
@@ -223,7 +234,7 @@ export function PoolHeader() {
       ctx.save()
       const numSparkles = 12
       for (let i = 0; i < numSparkles; i++) {
-        const sparkleX = ((time * 0.5 + i * (width / numSparkles)) % width)
+        const sparkleX = (time * 0.5 + i * (width / numSparkles)) % width
         const sparkleY = 10 + Math.sin(time * 0.05 + i) * 8
         const sparkleSize = 1.5 + Math.sin(time * 0.1 + i * 0.7) * 1
 
@@ -249,17 +260,14 @@ export function PoolHeader() {
       initial={{ opacity: 0, scaleY: 0 }}
       animate={{ opacity: 1, scaleY: 1 }}
       transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-      className="w-full h-32 md:h-40 relative overflow-hidden shadow-2xl rounded-b-lg"
+      className="relative h-32 w-full overflow-hidden rounded-b-lg shadow-2xl md:h-40"
       style={{ transformOrigin: 'top' }}
     >
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0 w-full h-full"
-      />
+      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
 
       {/* Pool edge effect */}
-      <div className="absolute top-0 left-0 right-0 h-2 bg-linear-to-b from-slate-400 to-slate-500 shadow-md" />
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-linear-to-t from-white/30 to-transparent" />
+      <div className="absolute top-0 right-0 left-0 h-2 bg-linear-to-b from-slate-400 to-slate-500 shadow-md" />
+      <div className="absolute right-0 bottom-0 left-0 h-1 bg-linear-to-t from-white/30 to-transparent" />
     </motion.div>
   )
 }

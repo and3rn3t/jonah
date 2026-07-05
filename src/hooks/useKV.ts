@@ -33,7 +33,7 @@ export function useKV<T>(key: string, defaultValue: T): [T, (value: T | ((prev: 
       try {
         const response = await fetch(`/api/kv/${encodeURIComponent(key)}`)
         if (response.ok) {
-          const data = await response.json() as { value: T | null }
+          const data = (await response.json()) as { value: T | null }
           if (!cancelled && data.value !== null) {
             setValue(data.value)
             // Sync to localStorage
@@ -58,51 +58,56 @@ export function useKV<T>(key: string, defaultValue: T): [T, (value: T | ((prev: 
   }, [key])
 
   // Persist to Cloudflare KV
-  const persistToKV = useCallback(async (newValue: T) => {
-    // Always save to localStorage immediately
-    localStorage.setItem(`kv:${key}`, JSON.stringify(newValue))
+  const persistToKV = useCallback(
+    async (newValue: T) => {
+      // Always save to localStorage immediately
+      localStorage.setItem(`kv:${key}`, JSON.stringify(newValue))
 
-    // Queue the update if already updating
-    if (isUpdating.current) {
-      pendingUpdate.current = newValue
-      return
-    }
-
-    isUpdating.current = true
-
-    try {
-      await fetch(`/api/kv/${encodeURIComponent(key)}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: newValue })
-      })
-    } catch {
-      console.warn(`Failed to persist KV value for ${key}`)
-    } finally {
-      isUpdating.current = false
-
-      // Process any pending updates
-      if (pendingUpdate.current !== null) {
-        const pending = pendingUpdate.current
-        pendingUpdate.current = null
-        persistToKV(pending)
+      // Queue the update if already updating
+      if (isUpdating.current) {
+        pendingUpdate.current = newValue
+        return
       }
-    }
-  }, [key])
+
+      isUpdating.current = true
+
+      try {
+        await fetch(`/api/kv/${encodeURIComponent(key)}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ value: newValue }),
+        })
+      } catch {
+        console.warn(`Failed to persist KV value for ${key}`)
+      } finally {
+        isUpdating.current = false
+
+        // Process any pending updates
+        if (pendingUpdate.current !== null) {
+          const pending = pendingUpdate.current
+          pendingUpdate.current = null
+          persistToKV(pending)
+        }
+      }
+    },
+    [key]
+  )
 
   // Setter function compatible with useState setter
-  const setKVValue = useCallback((newValue: T | ((prev: T) => T)) => {
-    setValue((prev) => {
-      const resolved = typeof newValue === 'function'
-        ? (newValue as (prev: T) => T)(prev)
-        : newValue
+  const setKVValue = useCallback(
+    (newValue: T | ((prev: T) => T)) => {
+      setValue((prev) => {
+        const resolved =
+          typeof newValue === 'function' ? (newValue as (prev: T) => T)(prev) : newValue
 
-      // Persist async
-      persistToKV(resolved)
+        // Persist async
+        persistToKV(resolved)
 
-      return resolved
-    })
-  }, [persistToKV])
+        return resolved
+      })
+    },
+    [persistToKV]
+  )
 
   return [value, setKVValue]
 }
@@ -110,7 +115,10 @@ export function useKV<T>(key: string, defaultValue: T): [T, (value: T | ((prev: 
 /**
  * Alternative hook that returns loading state
  */
-export function useKVWithLoading<T>(key: string, defaultValue: T): {
+export function useKVWithLoading<T>(
+  key: string,
+  defaultValue: T
+): {
   value: T
   setValue: (value: T | ((prev: T) => T)) => void
   isLoading: boolean
@@ -137,7 +145,7 @@ export function useKVWithLoading<T>(key: string, defaultValue: T): {
       try {
         const response = await fetch(`/api/kv/${encodeURIComponent(key)}`)
         if (response.ok) {
-          const data = await response.json() as { value: T | null }
+          const data = (await response.json()) as { value: T | null }
           if (!cancelled && data.value !== null) {
             setValue(data.value)
             localStorage.setItem(`kv:${key}`, JSON.stringify(data.value))
@@ -153,46 +161,53 @@ export function useKVWithLoading<T>(key: string, defaultValue: T): {
     }
 
     fetchValue()
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [key])
 
-  const persistToKV = useCallback(async (newValue: T) => {
-    localStorage.setItem(`kv:${key}`, JSON.stringify(newValue))
+  const persistToKV = useCallback(
+    async (newValue: T) => {
+      localStorage.setItem(`kv:${key}`, JSON.stringify(newValue))
 
-    if (isUpdating.current) {
-      pendingUpdate.current = newValue
-      return
-    }
-
-    isUpdating.current = true
-
-    try {
-      await fetch(`/api/kv/${encodeURIComponent(key)}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: newValue })
-      })
-    } catch {
-      console.warn(`Failed to persist KV value for ${key}`)
-    } finally {
-      isUpdating.current = false
-      if (pendingUpdate.current !== null) {
-        const pending = pendingUpdate.current
-        pendingUpdate.current = null
-        persistToKV(pending)
+      if (isUpdating.current) {
+        pendingUpdate.current = newValue
+        return
       }
-    }
-  }, [key])
 
-  const setKVValue = useCallback((newValue: T | ((prev: T) => T)) => {
-    setValue((prev) => {
-      const resolved = typeof newValue === 'function'
-        ? (newValue as (prev: T) => T)(prev)
-        : newValue
-      persistToKV(resolved)
-      return resolved
-    })
-  }, [persistToKV])
+      isUpdating.current = true
+
+      try {
+        await fetch(`/api/kv/${encodeURIComponent(key)}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ value: newValue }),
+        })
+      } catch {
+        console.warn(`Failed to persist KV value for ${key}`)
+      } finally {
+        isUpdating.current = false
+        if (pendingUpdate.current !== null) {
+          const pending = pendingUpdate.current
+          pendingUpdate.current = null
+          persistToKV(pending)
+        }
+      }
+    },
+    [key]
+  )
+
+  const setKVValue = useCallback(
+    (newValue: T | ((prev: T) => T)) => {
+      setValue((prev) => {
+        const resolved =
+          typeof newValue === 'function' ? (newValue as (prev: T) => T)(prev) : newValue
+        persistToKV(resolved)
+        return resolved
+      })
+    },
+    [persistToKV]
+  )
 
   return { value, setValue: setKVValue, isLoading }
 }

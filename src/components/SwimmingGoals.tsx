@@ -23,13 +23,13 @@ export function SwimmingGoals({ goals }: SwimmingGoalsProps) {
   const calculateProgress = (currentBest: string, targetTime: string): number => {
     const current = parseTime(currentBest)
     const target = parseTime(targetTime)
-    
+
     if (!current || !target) return 0
-    
+
     const improvement = current - target
     const totalNeeded = current * 0.15
     const progress = Math.min(100, Math.max(0, ((totalNeeded - improvement) / totalNeeded) * 100))
-    
+
     return Math.round(progress)
   }
 
@@ -41,16 +41,16 @@ export function SwimmingGoals({ goals }: SwimmingGoalsProps) {
     return daysUntil <= 30 && daysUntil > 0
   }
 
-  const activeGoals = goals.filter(g => !g.achieved)
-  const achievedGoals = goals.filter(g => g.achieved)
+  const activeGoals = goals.filter((g) => !g.achieved)
+  const achievedGoals = goals.filter((g) => g.achieved)
 
   if (goals.length === 0) {
     return (
       <Card className="border-2 border-dashed">
         <CardContent className="flex flex-col items-center justify-center py-12 text-center">
           <Target size={48} weight="duotone" className="text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">No Goals Set Yet</h3>
-          <p className="text-sm text-muted-foreground max-w-sm">
+          <h3 className="mb-2 text-lg font-semibold">No Goals Set Yet</h3>
+          <p className="text-muted-foreground max-w-sm text-sm">
             Set your first swimming goal to track your progress and stay motivated!
           </p>
         </CardContent>
@@ -65,15 +65,17 @@ export function SwimmingGoals({ goals }: SwimmingGoalsProps) {
           <div className="flex items-center gap-2">
             <Target size={20} className="text-accent sm:hidden" />
             <Target size={24} weight="duotone" className="text-accent hidden sm:block" />
-            <h3 className="text-lg sm:text-xl font-semibold">Active Goals</h3>
-            <Badge variant="secondary" className="text-xs sm:text-sm">{activeGoals.length}</Badge>
+            <h3 className="text-lg font-semibold sm:text-xl">Active Goals</h3>
+            <Badge variant="secondary" className="text-xs sm:text-sm">
+              {activeGoals.length}
+            </Badge>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+
+          <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
             {activeGoals.map((goal, index) => {
               const progress = calculateProgress(goal.currentBest, goal.targetTime)
               const deadlineClose = isDeadlineClose(goal.deadline)
-              
+
               return (
                 <motion.div
                   key={goal.id}
@@ -81,13 +83,14 @@ export function SwimmingGoals({ goals }: SwimmingGoalsProps) {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                 >
-                  <Card className="h-full hover:shadow-lg hover:shadow-accent/20 hover:-translate-y-1 transition-all duration-300 border-2 hover:border-accent/50">
+                  <Card className="hover:shadow-accent/20 hover:border-accent/50 h-full border-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
                     <CardHeader>
-                      <div className="flex justify-between items-start">
+                      <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <CardTitle className="text-lg">{goal.stroke}</CardTitle>
                           <CardDescription className="mt-1">
-                            Target: <span className="font-semibold text-foreground">{goal.targetTime}</span>
+                            Target:{' '}
+                            <span className="text-foreground font-semibold">{goal.targetTime}</span>
                           </CardDescription>
                         </div>
                         {deadlineClose && (
@@ -105,24 +108,25 @@ export function SwimmingGoals({ goals }: SwimmingGoalsProps) {
                           <span className="font-semibold">{goal.currentBest}</span>
                         </div>
                         <Progress value={progress} className="h-2" />
-                        <div className="flex justify-between text-xs text-muted-foreground">
+                        <div className="text-muted-foreground flex justify-between text-xs">
                           <span>{progress}% progress</span>
                           <span className="flex items-center gap-1">
                             <TrendUp size={12} weight="bold" />
-                            {(parseTime(goal.currentBest) - parseTime(goal.targetTime)).toFixed(1)}s to go
+                            {(parseTime(goal.currentBest) - parseTime(goal.targetTime)).toFixed(1)}s
+                            to go
                           </span>
                         </div>
                       </div>
 
                       {goal.deadline && (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <div className="text-muted-foreground flex items-center gap-2 text-sm">
                           <Clock size={16} />
                           <span>Deadline: {new Date(goal.deadline).toLocaleDateString()}</span>
                         </div>
                       )}
 
                       {goal.notes && (
-                        <p className="text-sm text-muted-foreground italic border-l-2 border-accent pl-3">
+                        <p className="text-muted-foreground border-accent border-l-2 pl-3 text-sm italic">
                           {goal.notes}
                         </p>
                       )}
@@ -142,8 +146,8 @@ export function SwimmingGoals({ goals }: SwimmingGoalsProps) {
             <h3 className="text-xl font-semibold">Achieved Goals</h3>
             <Badge className="bg-secondary text-secondary-foreground">{achievedGoals.length}</Badge>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {achievedGoals.map((goal, index) => (
               <motion.div
                 key={goal.id}
@@ -151,16 +155,19 @@ export function SwimmingGoals({ goals }: SwimmingGoalsProps) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
               >
-                <Card className="h-full border-2 border-secondary/30 bg-linear-to-br from-secondary/5 to-transparent">
+                <Card className="border-secondary/30 from-secondary/5 h-full border-2 bg-linear-to-br to-transparent">
                   <CardHeader>
-                    <div className="flex justify-between items-start">
+                    <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <CardTitle className="text-lg flex items-center gap-2">
+                        <CardTitle className="flex items-center gap-2 text-lg">
                           <CheckCircle size={20} weight="fill" className="text-secondary" />
                           {goal.stroke}
                         </CardTitle>
                         <CardDescription className="mt-1">
-                          Target: <span className="font-semibold text-foreground line-through">{goal.targetTime}</span>
+                          Target:{' '}
+                          <span className="text-foreground font-semibold line-through">
+                            {goal.targetTime}
+                          </span>
                         </CardDescription>
                       </div>
                     </div>
@@ -168,15 +175,15 @@ export function SwimmingGoals({ goals }: SwimmingGoalsProps) {
                   <CardContent className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Final Time</span>
-                      <span className="font-semibold text-secondary">{goal.currentBest}</span>
+                      <span className="text-secondary font-semibold">{goal.currentBest}</span>
                     </div>
                     {goal.achievedDate && (
-                      <div className="text-sm text-muted-foreground">
+                      <div className="text-muted-foreground text-sm">
                         Achieved on {new Date(goal.achievedDate).toLocaleDateString()}
                       </div>
                     )}
                     {goal.notes && (
-                      <p className="text-sm text-muted-foreground italic border-l-2 border-secondary pl-3 mt-2">
+                      <p className="text-muted-foreground border-secondary mt-2 border-l-2 pl-3 text-sm italic">
                         {goal.notes}
                       </p>
                     )}

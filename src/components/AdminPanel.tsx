@@ -467,7 +467,7 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
           </DialogHeader>
 
           <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="grid h-auto w-full grid-cols-5 gap-1 p-1 mb-4">
+            <TabsList className="mb-4 grid h-auto w-full grid-cols-5 gap-1 p-1">
               <TabsTrigger value="profile">Profile</TabsTrigger>
               <TabsTrigger value="anime">Anime</TabsTrigger>
               <TabsTrigger value="swimming">Swimming</TabsTrigger>

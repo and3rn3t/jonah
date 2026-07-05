@@ -42,7 +42,9 @@ export function SwimmingTimeline({ events }: SwimmingTimelineProps) {
     }
   }
 
-  const getEventBadgeVariant = (eventType: TimelineEvent['eventType']): "default" | "secondary" | "outline" => {
+  const getEventBadgeVariant = (
+    eventType: TimelineEvent['eventType']
+  ): 'default' | 'secondary' | 'outline' => {
     switch (eventType) {
       case 'personal-best':
         return 'default'
@@ -101,7 +103,9 @@ export function SwimmingTimeline({ events }: SwimmingTimelineProps) {
       <Card className="border-2 border-dashed">
         <CardContent className="py-12 text-center">
           <Timer size={48} weight="duotone" className="text-muted-foreground mx-auto mb-4" />
-          <p className="text-muted-foreground">No timeline events yet. Add your swimming progress!</p>
+          <p className="text-muted-foreground">
+            No timeline events yet. Add your swimming progress!
+          </p>
         </CardContent>
       </Card>
     )
@@ -110,14 +114,14 @@ export function SwimmingTimeline({ events }: SwimmingTimelineProps) {
   return (
     <div className="relative">
       {/* Timeline line - hidden on small mobile, visible on sm+ */}
-      <div className="hidden sm:block absolute left-8 top-0 bottom-0 w-0.5 bg-linear-to-b from-accent via-primary to-secondary opacity-30" />
-      
+      <div className="from-accent via-primary to-secondary absolute top-0 bottom-0 left-8 hidden w-0.5 bg-linear-to-b opacity-30 sm:block" />
+
       <div className="space-y-4 sm:space-y-8">
         {sortedEvents.map((event, index) => {
           const Icon = getEventIcon(event.eventType)
           const colorClass = getEventColor(event.eventType)
           const improvement = calculateImprovement(event.time, event.previousTime)
-          
+
           return (
             <motion.div
               key={event.id}
@@ -127,63 +131,82 @@ export function SwimmingTimeline({ events }: SwimmingTimelineProps) {
               className="relative sm:pl-20"
             >
               {/* Mobile: inline icon badge, Desktop: positioned left icon */}
-              <div className={`hidden sm:flex absolute left-0 w-16 h-16 rounded-full border-4 ${colorClass} items-center justify-center shadow-lg z-10`}>
+              <div
+                className={`absolute left-0 hidden h-16 w-16 rounded-full border-4 sm:flex ${colorClass} z-10 items-center justify-center shadow-lg`}
+              >
                 <Icon size={28} weight="duotone" />
               </div>
 
-              <Card className="hover:shadow-xl hover:shadow-accent/10 transition-all duration-300 border-2">
+              <Card className="hover:shadow-accent/10 border-2 transition-all duration-300 hover:shadow-xl">
                 <CardHeader className="pb-3 sm:pb-6">
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                     <div className="flex-1">
                       {/* Mobile: show icon inline with date */}
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className={`flex sm:hidden w-8 h-8 rounded-full border-2 ${colorClass} items-center justify-center`}>
+                      <div className="mb-2 flex items-center gap-2">
+                        <div
+                          className={`flex h-8 w-8 rounded-full border-2 sm:hidden ${colorClass} items-center justify-center`}
+                        >
                           <Icon size={16} weight="duotone" />
                         </div>
-                        <CalendarBlank size={16} className="text-muted-foreground hidden sm:block" />
-                        <span className="text-sm text-muted-foreground">
+                        <CalendarBlank
+                          size={16}
+                          className="text-muted-foreground hidden sm:block"
+                        />
+                        <span className="text-muted-foreground text-sm">
                           {format(new Date(event.date), 'MMM d, yyyy')}
                         </span>
                       </div>
-                      <CardTitle className="text-lg sm:text-xl mb-2">{event.title}</CardTitle>
+                      <CardTitle className="mb-2 text-lg sm:text-xl">{event.title}</CardTitle>
                       <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                        <Badge variant={getEventBadgeVariant(event.eventType)} className="text-xs sm:text-sm">
+                        <Badge
+                          variant={getEventBadgeVariant(event.eventType)}
+                          className="text-xs sm:text-sm"
+                        >
                           {getEventLabel(event.eventType)}
                         </Badge>
                         <Badge variant="outline" className="border-primary/30 text-xs sm:text-sm">
                           {event.stroke}
                         </Badge>
                         {event.placement && (
-                          <Badge variant="secondary" className="bg-accent/20 text-accent border-accent/30 text-xs sm:text-sm">
+                          <Badge
+                            variant="secondary"
+                            className="bg-accent/20 text-accent border-accent/30 text-xs sm:text-sm"
+                          >
                             {event.placement}
                           </Badge>
                         )}
                       </div>
                     </div>
-                    
-                    <div className="text-left sm:text-right mt-2 sm:mt-0">
-                      <div className="text-2xl sm:text-3xl font-bold text-primary">{event.time}</div>
+
+                    <div className="mt-2 text-left sm:mt-0 sm:text-right">
+                      <div className="text-primary text-2xl font-bold sm:text-3xl">
+                        {event.time}
+                      </div>
                       {improvement && (
-                        <div className={`text-xs sm:text-sm font-semibold mt-1 ${event.previousTime && calculateImprovement(event.time, event.previousTime)?.includes('faster') ? 'text-accent' : 'text-muted-foreground'}`}>
+                        <div
+                          className={`mt-1 text-xs font-semibold sm:text-sm ${event.previousTime && calculateImprovement(event.time, event.previousTime)?.includes('faster') ? 'text-accent' : 'text-muted-foreground'}`}
+                        >
                           {improvement}
                         </div>
                       )}
                     </div>
                   </div>
                 </CardHeader>
-                
+
                 <CardContent className="pt-0">
-                  <p className="text-sm sm:text-base text-muted-foreground mb-3">{event.description}</p>
-                  
+                  <p className="text-muted-foreground mb-3 text-sm sm:text-base">
+                    {event.description}
+                  </p>
+
                   {event.location && (
-                    <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+                    <div className="text-muted-foreground flex items-center gap-2 text-xs sm:text-sm">
                       <MapPin size={16} weight="duotone" />
                       <span>{event.location}</span>
                     </div>
                   )}
 
                   {event.previousTime && (
-                    <div className="mt-3 pt-3 border-t flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+                    <div className="text-muted-foreground mt-3 flex items-center gap-2 border-t pt-3 text-xs sm:text-sm">
                       <TrendUp size={16} weight="duotone" className="text-accent" />
                       <span>Previous: {event.previousTime}</span>
                     </div>

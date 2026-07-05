@@ -1,9 +1,9 @@
 @import 'tailwindcss';
-@import "tw-animate-css";
+@import 'tw-animate-css';
 
 @layer base {
   * {
-    @apply border-border
+    @apply border-border;
   }
 }
 
@@ -95,34 +95,37 @@ body {
   font-family: var(--font-body);
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-heading);
 }
 
 .wave-pattern {
-  background-image: 
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 50px,
-      oklch(0.75 0.15 200 / 0.03) 50px,
-      oklch(0.75 0.15 200 / 0.03) 100px
-    );
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 50px,
+    oklch(0.75 0.15 200 / 0.03) 50px,
+    oklch(0.75 0.15 200 / 0.03) 100px
+  );
 }
 
 .dark .wave-pattern {
-  background-image: 
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 50px,
-      oklch(0.55 0.18 240 / 0.1) 50px,
-      oklch(0.55 0.18 240 / 0.1) 100px
-    );
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 50px,
+    oklch(0.55 0.18 240 / 0.1) 50px,
+    oklch(0.55 0.18 240 / 0.1) 100px
+  );
 }
 
 .gradient-mesh {
-  background: 
+  background:
     radial-gradient(circle at 20% 30%, oklch(0.75 0.15 200 / 0.15) 0%, transparent 50%),
     radial-gradient(circle at 80% 20%, oklch(0.65 0.25 330 / 0.1) 0%, transparent 50%),
     radial-gradient(circle at 40% 80%, oklch(0.65 0.12 210 / 0.12) 0%, transparent 50%),
@@ -130,7 +133,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .dark .gradient-mesh {
-  background: 
+  background:
     radial-gradient(circle at 20% 30%, oklch(0.55 0.18 240 / 0.2) 0%, transparent 50%),
     radial-gradient(circle at 80% 20%, oklch(0.7 0.25 330 / 0.15) 0%, transparent 50%),
     radial-gradient(circle at 40% 80%, oklch(0.65 0.15 200 / 0.15) 0%, transparent 50%),
@@ -148,14 +151,14 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Improve touch targets for mobile */
 @media (pointer: coarse) {
-  button, 
-  [role="button"],
+  button,
+  [role='button'],
   a,
-  input[type="submit"] {
+  input[type='submit'] {
     min-height: 44px;
     min-width: 44px;
   }
-  
+
   .touch-target-lg {
     min-height: 48px;
     min-width: 48px;
@@ -165,7 +168,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Prevent text selection on interactive elements for cleaner mobile feel */
 @media (pointer: coarse) {
   button,
-  [role="button"] {
+  [role='button'] {
     -webkit-user-select: none;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
@@ -187,7 +190,8 @@ body {
 @media (hover: none) {
   .hover\:shadow-xl:hover,
   .hover\:-translate-y-1:hover {
-    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+    box-shadow:
+      var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
     transform: none;
   }
 }
