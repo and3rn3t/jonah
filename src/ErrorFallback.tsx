@@ -25,7 +25,7 @@ export const ErrorFallback = ({ error, resetErrorBoundary }: FallbackProps) => {
         <div className="bg-card mb-6 rounded-lg border p-4">
           <h3 className="text-muted-foreground mb-2 text-sm font-semibold">Error Details:</h3>
           <pre className="text-destructive bg-muted/50 max-h-32 overflow-auto rounded border p-3 text-xs">
-            {error.message}
+            {(error as Error).message}
           </pre>
         </div>
 
