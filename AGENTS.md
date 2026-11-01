@@ -20,7 +20,8 @@ Product spec: `PRD.md`; deploy guide: `DEPLOYMENT.md`.
 - **npm** (`package-lock.json`), Node `24.22.0` (`.nvmrc`)
 - Cloudflare Pages Functions bound to KV namespace `SITE_KV` (`wrangler.toml`, project
   `jonah-portfolio`): `functions/api/kv/[key].ts` (GET/PUT) and `functions/api/messages.ts`
-  (POST contact form); shared helpers in `functions/_lib/http.ts`
+  (POST contact form); gallery images in R2 bucket `PHOTOS` via `functions/api/photos/[id].ts`;
+  shared helpers in `functions/_lib/http.ts`
 
 ## Layout
 
@@ -31,7 +32,8 @@ src/
                         # SwimmingGoals, SwimmingTimeline, ThemeToggle; ui/ = shadcn primitives
   hooks/useKV.ts        # useKV<T>(key, default): localStorage cache + /api/kv/:key sync
   lib/types.ts          # SiteContent, Profile, Anime, SwimmingAchievement, TimelineEvent,
-                        # SwimmingGoal, ContactMessage, SocialLink (Photo lives in PhotoGallery.tsx)
+                        # SwimmingGoal, ContactMessage, SocialLink, Photo
+  lib/photos.ts         # compress (WebP, max 1600px) + upload/delete gallery images in R2
   styles/theme.css      # theme CSS variables (light/dark)
 functions/api/          # Pages Functions: kv/[key].ts backs useKV, messages.ts takes the contact form
 functions/_lib/         # shared json() / isAdmin() helpers (no routes)
@@ -65,6 +67,9 @@ too).
   `sessionStorage` (`src/lib/adminToken.ts`). Visitors never write KV directly: the contact form
   POSTs to `/api/messages`.
 - Theme preference is per-device `localStorage`, not KV.
+- Gallery images: `gallery-photos` in KV holds only metadata; each image is an R2 object served
+  at `/api/photos/<id>` (immutable cache, so never reuse an id). Older entries may still hold
+  base64 `data:` URLs until "Move photos" in admin Settings is run.
 - New content field: add it to the interface in `src/lib/types.ts`, a default in
   `defaultContent` in `App.tsx`, an editor in `AdminPanel.tsx`, and render it in the right
   section.

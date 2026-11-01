@@ -11,5 +11,11 @@ binding = "SITE_KV"
 id = "f1fca4cc24954a3792e87664f18376fe"
 preview_id = "187d0c82e9194f2f87f3238a5ce71c1e"
 
+# R2 bucket for gallery images (functions/api/photos/[id].ts)
+# Run: npx wrangler r2 bucket create jonah-photos
+[[r2_buckets]]
+binding = "PHOTOS"
+bucket_name = "jonah-photos"
+
 # Custom domain configuration is done in Cloudflare Pages dashboard
 # Domain: jonahanderson.us

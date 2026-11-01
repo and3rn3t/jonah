@@ -23,7 +23,7 @@
         "typecheck": "tsc --noEmit && tsc -p functions --noEmit",
         "preview": "vite preview",
         "deploy": "npm run build && npx wrangler pages deploy dist",
-        "pages:dev": "npx wrangler pages dev dist --kv SITE_KV"
+        "pages:dev": "npx wrangler pages dev dist --kv SITE_KV --r2 PHOTOS"
     },
     "dependencies": {
         "@github/spark": ">=0.43.1 <1",
