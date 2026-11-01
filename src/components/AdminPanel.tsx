@@ -65,7 +65,7 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
     setAdminToken(token)
     setIsUnlocked(true)
     setShowPasswordDialog(false)
-    setIsOpen(true)
+    openPanel()
     toast.success('Welcome! Admin panel unlocked! 🔓')
   }
 
@@ -76,11 +76,17 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
     toast.success('Admin panel locked 🔒')
   }
 
+  // Start each session from the latest saved content so a stale draft can't overwrite it
+  const openPanel = () => {
+    setLocalContent(content)
+    setIsOpen(true)
+  }
+
   const handleGearClick = () => {
     if (!isUnlocked) {
       setShowPasswordDialog(true)
     } else {
-      setIsOpen(true)
+      openPanel()
     }
   }
 
