@@ -1,0 +1,10 @@
+# Intentionally slimmed for a personal site (see docs: AGENTS.md)
+.github/workflows/codeql.yml
+.github/workflows/labeler.yml
+.github/workflows/label-sync.yml
+.github/workflows/release-drafter.yml
+.github/workflows/lighthouse.yml
+.github/workflows/stale.yml
+.github/labeler.yml
+.github/labels.yml
+.github/release-drafter.yml
