@@ -13,7 +13,6 @@ interface UseKVOptions {
 
 /**
  * Custom useKV hook for Cloudflare KV storage
- * Compatible API with @github/spark/hooks useKV
  * Falls back to localStorage when KV API is unavailable
  */
 export function useKV<T>(

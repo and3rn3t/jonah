@@ -86,8 +86,7 @@ src/
 ├── lib/
 │   ├── types.ts            # TypeScript type definitions
 │   └── utils.ts            # Utility functions
-└── styles/
-    └── theme.css           # Theme CSS variables
+└── main.css                # Tailwind 4 theme and CSS variables (with index.css)
 ```
 
 ## Data Types
@@ -116,7 +115,7 @@ import { Button } from '@/components/ui/button'
 
 ### Tailwind CSS
 
-Custom theme colors are defined via CSS variables in [src/styles/theme.css](src/styles/theme.css) and extended in [tailwind.config.js](tailwind.config.js).
+Theme colors are CSS variables in [src/main.css](src/main.css) and [src/index.css](src/index.css) (Tailwind 4 `@theme`); there is no `tailwind.config.js`.
 
 ### VS Code
 

@@ -41,7 +41,7 @@ src/
   lib/photos.ts         # compress (WebP, max 1600px) + upload/delete gallery images in R2
   lib/motion.ts         # shared containerVariants / itemVariants
   lib/social.ts         # social platform → icon + brand colors
-  styles/theme.css      # theme CSS variables (light/dark)
+  main.css, index.css   # Tailwind 4 theme (@theme), light/.dark CSS variables, custom utilities
 functions/api/          # Pages Functions: kv/[key].ts backs useKV, messages.ts takes the contact form
 functions/_lib/         # shared json() / isAdmin() helpers (no routes)
 ```

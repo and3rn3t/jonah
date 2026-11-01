@@ -7,6 +7,19 @@ const STORED_PREFIX = '/api/photos/'
 export const isStoredPhoto = (url: string): boolean => url.startsWith(STORED_PREFIX)
 export const isLegacyPhoto = (url: string): boolean => url.startsWith('data:')
 
+/** Decodes a base64 `data:` URL locally; fetch() of data: URLs is blocked by the CSP connect-src. */
+export function dataUrlToBlob(dataUrl: string): Blob {
+  const [header, payload = ''] = dataUrl.split(',', 2)
+  const mimeType = /^data:([^;,]+)/.exec(header)?.[1] ?? 'application/octet-stream'
+  if (!header.includes(';base64')) {
+    return new Blob([decodeURIComponent(payload)], { type: mimeType })
+  }
+  const binary = atob(payload)
+  const bytes = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
+  return new Blob([bytes], { type: mimeType })
+}
+
 export const newPhotoId = (): string => crypto.randomUUID()
 
 const canvasToBlob = (canvas: HTMLCanvasElement, type: string): Promise<Blob | null> =>
