@@ -25,7 +25,13 @@ import {
 import { TabsContent } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { useKV } from '@/hooks/useKV'
-import { deleteStoredPhoto, isLegacyPhoto, newPhotoId, uploadPhoto } from '@/lib/photos'
+import {
+  dataUrlToBlob,
+  deleteStoredPhoto,
+  isLegacyPhoto,
+  newPhotoId,
+  uploadPhoto,
+} from '@/lib/photos'
 import type { Photo } from '@/lib/types'
 
 interface NewPhotoDraft {
@@ -111,7 +117,7 @@ export function PhotosTab() {
           continue
         }
         const id = newPhotoId()
-        const blob = await (await fetch(photo.url)).blob()
+        const blob = dataUrlToBlob(photo.url)
         migrated.push({ ...photo, id, url: await uploadPhoto(id, blob) })
       }
       setPhotos(migrated)

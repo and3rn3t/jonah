@@ -75,9 +75,10 @@ export function PoolHeader() {
     let height = 0
 
     const resize = () => {
-      const rect = canvas.getBoundingClientRect()
-      width = rect.width
-      height = rect.height
+      // Layout size, not getBoundingClientRect: the parent's entrance scaleY transform would
+      // report a squashed height, and ResizeObserver doesn't fire when the transform ends
+      width = canvas.clientWidth
+      height = canvas.clientHeight
       if (width === 0 || height === 0) return
 
       const dpr = window.devicePixelRatio || 1
