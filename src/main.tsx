@@ -1,4 +1,5 @@
 import { createRoot } from 'react-dom/client'
+import { MotionConfig } from 'motion/react'
 import { ErrorBoundary } from 'react-error-boundary'
 
 import App from './App.tsx'
@@ -9,7 +10,10 @@ import './main.css'
 
 createRoot(document.getElementById('root')!).render(
   <ErrorBoundary FallbackComponent={ErrorFallback}>
-    <App />
-    <Toaster />
+    {/* Honors the OS "reduce motion" setting for every motion/react animation */}
+    <MotionConfig reducedMotion="user">
+      <App />
+      <Toaster />
+    </MotionConfig>
   </ErrorBoundary>
 )

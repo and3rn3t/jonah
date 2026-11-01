@@ -11,7 +11,6 @@ export function PoolHeader() {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    let animationFrame: number
     let time = 0
     let bubblesList: Array<{
       lane: number
@@ -72,29 +71,23 @@ export function PoolHeader() {
       }
     }
 
-    const animate = () => {
-      // Get current size on each frame
+    let width = 0
+    let height = 0
+
+    const resize = () => {
       const rect = canvas.getBoundingClientRect()
-      const width = rect.width
-      const height = rect.height
+      width = rect.width
+      height = rect.height
+      if (width === 0 || height === 0) return
 
-      // Skip if not visible yet
-      if (width === 0 || height === 0) {
-        animationFrame = requestAnimationFrame(animate)
-        return
-      }
-
-      // Update canvas size if needed
       const dpr = window.devicePixelRatio || 1
-      if (canvas.width !== Math.floor(width * dpr) || canvas.height !== Math.floor(height * dpr)) {
-        canvas.width = Math.floor(width * dpr)
-        canvas.height = Math.floor(height * dpr)
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-        initBubbles(width, height)
-      }
+      canvas.width = Math.floor(width * dpr)
+      canvas.height = Math.floor(height * dpr)
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      initBubbles(width, height)
+    }
 
-      time++
-
+    const drawFrame = () => {
       const laneWidth = width / NUM_LANES
 
       ctx.clearRect(0, 0, width, height)
@@ -244,14 +237,60 @@ export function PoolHeader() {
         ctx.fill()
       }
       ctx.restore()
+    }
 
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    let isOnScreen = true
+    let animationFrame: number | null = null
+
+    const animate = () => {
+      if (width > 0 && height > 0) {
+        time++
+        drawFrame()
+      }
       animationFrame = requestAnimationFrame(animate)
     }
 
-    animate()
+    const stop = () => {
+      if (animationFrame !== null) cancelAnimationFrame(animationFrame)
+      animationFrame = null
+    }
+
+    // Run only while on screen, in a visible tab, and motion is allowed; otherwise show a still frame
+    const update = () => {
+      const shouldAnimate =
+        isOnScreen && document.visibilityState === 'visible' && !reducedMotion.matches
+      if (!shouldAnimate) {
+        stop()
+        if (reducedMotion.matches && width > 0 && height > 0) drawFrame()
+        return
+      }
+      if (animationFrame === null) animate()
+    }
+
+    const resizeObserver = new ResizeObserver(() => {
+      resize()
+      if (animationFrame === null && width > 0 && height > 0) drawFrame()
+    })
+    resizeObserver.observe(canvas)
+
+    const intersectionObserver = new IntersectionObserver(([entry]) => {
+      isOnScreen = entry.isIntersecting
+      update()
+    })
+    intersectionObserver.observe(canvas)
+
+    document.addEventListener('visibilitychange', update)
+    reducedMotion.addEventListener('change', update)
+    resize()
+    update()
 
     return () => {
-      cancelAnimationFrame(animationFrame)
+      stop()
+      resizeObserver.disconnect()
+      intersectionObserver.disconnect()
+      document.removeEventListener('visibilitychange', update)
+      reducedMotion.removeEventListener('change', update)
     }
   }, [])
 
