@@ -1,8 +1,8 @@
 # Project Guidelines (AGENTS.md)
 
 <!--
-  Tool-neutral instructions for AI assistants. CLAUDE.md holds the longer
-  Claude-oriented walkthrough (patterns, common tasks); keep the two consistent.
+  Canonical, tool-neutral instructions for AI assistants. CLAUDE.md and
+  .github/copilot-instructions.md only point here; edit this file.
 -->
 
 ## Project Overview
@@ -16,7 +16,7 @@ Product spec: `PRD.md`; deploy guide: `DEPLOYMENT.md`.
 ## Stack
 
 - React 19 + TypeScript 6 + Vite 7 (SWC), Tailwind CSS 4, Radix/shadcn UI
-  (`src/components/ui/`), Framer Motion, Recharts, Phosphor/Lucide icons
+  (`src/components/ui/`), Motion (`motion/react`), Phosphor/Lucide icons
 - **npm** (`package-lock.json`), Node `24.22.0` (`.nvmrc`)
 - Cloudflare Pages Function `functions/api/kv/[key].ts` (GET/PUT) bound to KV namespace
   `SITE_KV` (`wrangler.toml`, project `jonah-portfolio`)
@@ -29,7 +29,6 @@ src/
   components/           # AdminPanel, PhotoGallery, PoolHeader, StatsDashboard,
                         # SwimmingGoals, SwimmingTimeline, ThemeToggle; ui/ = shadcn primitives
   hooks/useKV.ts        # useKV<T>(key, default): localStorage cache + /api/kv/:key sync
-  hooks/use-mobile.ts
   lib/types.ts          # SiteContent, Profile, Anime, SwimmingAchievement, TimelineEvent,
                         # SwimmingGoal, ContactMessage, SocialLink (Photo lives in PhotoGallery.tsx)
   styles/theme.css      # theme CSS variables (light/dark)
@@ -69,7 +68,7 @@ too).
 - Imports: React, then external libraries, then `@/` internal imports.
 - Tailwind classes only (prettier-plugin-tailwindcss sorts them); theme colors
   `primary`/`secondary`/`accent`/`background`/`foreground`; `dark:` for dark mode.
-- Animations: Framer Motion with typed `Variants`.
+- Animations: `motion/react` with typed `Variants`.
 - Prettier: no semicolons, single quotes, width 100. Conventional commits enforced by
   commitlint (`.husky/commit-msg`).
 

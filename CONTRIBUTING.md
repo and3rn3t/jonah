@@ -76,7 +76,7 @@ export function MyComponent({ title, onAction }: MyComponentProps) {
 
 ```typescript
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 import { Button } from '@/components/ui/button'
 import type { SiteContent } from '@/lib/types'
 ```
@@ -96,7 +96,7 @@ import type { SiteContent } from '@/lib/types'
 
 ### Animations
 
-- Use Framer Motion for animations
+- Use Motion (`motion/react`) for animations
 - Keep animations subtle and performant
 - Use the existing animation patterns in `App.tsx`
 
@@ -112,7 +112,7 @@ const fadeInUp: Variants = {
 ### State Management
 
 - Use React hooks for local state
-- Use `useKV` from `@github/spark/hooks` for persistent storage
+- Use `useKV` from `@/hooks/useKV` for persistent storage
 - State flows down through props
 
 ### Components

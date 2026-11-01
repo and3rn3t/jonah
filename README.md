@@ -1,6 +1,6 @@
 # Jonah - Personal Portfolio
 
-A vibrant personal portfolio web application showcasing anime favorites and swimming achievements. Built with React, TypeScript, and the GitHub Spark platform.
+A vibrant personal portfolio web application showcasing anime favorites and swimming achievements. Built with React and TypeScript, deployed to Cloudflare Pages (started from the GitHub Spark template).
 
 ## Features
 
@@ -18,14 +18,13 @@ A vibrant personal portfolio web application showcasing anime favorites and swim
 | Category | Technology |
 |----------|------------|
 | Framework | React 19 |
-| Language | TypeScript 5.7 |
+| Language | TypeScript 6 |
 | Build Tool | Vite 7 |
 | Styling | Tailwind CSS 4 |
 | UI Components | Radix UI + shadcn/ui |
-| Animations | Framer Motion |
-| Charts | Recharts |
-| Platform | GitHub Spark |
-| State | @github/spark KV storage |
+| Animations | Motion (`motion/react`) |
+| Hosting | Cloudflare Pages |
+| State | `useKV` (localStorage cache + Cloudflare KV via `functions/api/kv/`) |
 
 ## Getting Started
 
@@ -80,7 +79,7 @@ src/
 │   ├── ThemeToggle.tsx     # Dark/light mode toggle
 │   └── ui/                 # shadcn/ui components
 ├── hooks/
-│   └── use-mobile.ts       # Mobile detection hook
+│   └── useKV.ts            # Persistent state (localStorage + /api/kv sync)
 ├── lib/
 │   ├── types.ts            # TypeScript type definitions
 │   └── utils.ts            # Utility functions
@@ -120,13 +119,9 @@ Custom theme colors are defined via CSS variables in [src/styles/theme.css](src/
 
 Recommended extensions are listed in [.vscode/extensions.json](.vscode/extensions.json). Install them for the best development experience.
 
-## GitHub Spark Platform
+## Deployment
 
-This app uses the GitHub Spark platform for:
-
-- **KV Storage** - Persistent data storage via `useKV` hook
-- **User API** - Owner detection via `spark.user()`
-- **Email Notifications** - Contact form notifications
+Hosted on Cloudflare Pages with content stored in Cloudflare KV. See [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## Contributing
 
@@ -138,4 +133,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-Built with GitHub Spark
+Started from the GitHub Spark template
