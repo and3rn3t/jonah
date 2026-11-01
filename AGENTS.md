@@ -50,18 +50,27 @@ functions/_lib/         # shared json() / isAdmin() helpers (no routes)
 
 ```bash
 npm install
-npm run dev            # Vite + Spark plugin, port 5000; useKV falls back to localStorage
+npm run dev            # Vite, port 5000 (no Functions: useKV falls back to localStorage)
 npm run lint           # eslint (lint:fix to autofix)
-npm run typecheck      # tsc for src/ and functions/
-npm run format:check   # prettier (format to write)
+npm run typecheck      # tsc for src/, functions/ and tests/
+npm run format:check   # prettier for src/, functions/, tests/ (format to write)
+npm test               # vitest run (test:watch for watch mode)
 npm run build          # tsc -b --noCheck && vite build — doesn't type-check; run typecheck too
-npm run pages:dev      # wrangler pages dev dist --kv SITE_KV (Functions + KV locally, after build;
+npm run pages:dev      # wrangler pages dev dist --kv SITE_KV --r2 PHOTOS (Functions locally, after build;
                        # needs ADMIN_TOKEN in .dev.vars to unlock the admin panel)
 ```
 
-CI (`ci.yml`) runs `npm run lint && npm run typecheck && npm run format:check && npm run build`.
-There is no unit test suite; verify UI changes in the browser (mobile viewport and dark mode
-too).
+CI (`ci.yml`) runs `npm run lint && npm run typecheck && npm run format:check && npm test && npm run build`.
+
+Tests (Vitest):
+- `tests/functions/*.test.ts`: Pages Functions handlers called directly with in-memory KV/R2
+  fakes from `tests/support/cloudflare.ts` (Node env; `tests/support/setup.ts` polyfills the
+  Workers-only `crypto.subtle.timingSafeEqual`). Cover auth and validation for any new endpoint.
+- `src/**/*.test.ts(x)`: client code; add `// @vitest-environment jsdom` for hooks/components.
+- No component/UI tests yet: verify UI changes in the browser (mobile viewport and dark mode too).
+- Dependency changes: macOS npm drops bundled `@emnapi/*` entries from `package-lock.json` and
+  CI's `npm ci` then fails. Regenerate the lockfile in a `node:24` Linux container
+  (`npm install --package-lock-only`) before pushing.
 
 ## Data & State
 
