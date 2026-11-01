@@ -5,7 +5,6 @@
     "bradlc.vscode-tailwindcss",
     "formulahendry.auto-rename-tag",
     "dsznajder.es7-react-js-snippets",
-    "ms-vscode.vscode-typescript-next",
-    "mikestead.dotenv"
+    "ms-vscode.vscode-typescript-next"
   ]
 }
