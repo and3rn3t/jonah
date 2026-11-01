@@ -1,919 +1,105 @@
-import { motion, Variants } from 'motion/react'
-import {
-  Television,
-  Waves,
-  User,
-  Star,
-  Trophy,
-  Clock,
-  DiscordLogo,
-  InstagramLogo,
-  TwitchLogo,
-  YoutubeLogo,
-  PaperPlaneTilt,
-  Images,
-  XLogo,
-  TiktokLogo,
-  ChartLineUp,
-  ChartBar,
-  Target,
-} from '@phosphor-icons/react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { lazy, Suspense } from 'react'
+import { motion } from 'motion/react'
+import { ChartBar, ChartLineUp, Images, Target } from '@phosphor-icons/react'
 import { Separator } from '@/components/ui/separator'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
-import { useState, useEffect, useCallback, lazy, Suspense } from 'react'
-import { toast } from 'sonner'
 import { PhotoGallery } from '@/components/PhotoGallery'
+import { PoolHeader } from '@/components/PoolHeader'
+import { StatsDashboard } from '@/components/StatsDashboard'
+import { SwimmingGoals } from '@/components/SwimmingGoals'
+import { SwimmingTimeline } from '@/components/SwimmingTimeline'
+import { ThemeToggle } from '@/components/ThemeToggle'
+import { defaultContent, defaultGoals } from '@/content/defaults'
+import { useKV } from '@/hooks/useKV'
+import { containerVariants, itemVariants } from '@/lib/motion'
+import type { SiteContent, SwimmingGoal } from '@/lib/types'
+import { AboutSection } from '@/sections/AboutSection'
+import { AnimeSection } from '@/sections/AnimeSection'
+import { ConnectSection } from '@/sections/ConnectSection'
+import { ProfileHero } from '@/sections/ProfileHero'
+import { Section } from '@/sections/Section'
+import { SwimmingSection } from '@/sections/SwimmingSection'
+
 const AdminPanel = lazy(() =>
   import('@/components/AdminPanel').then((m) => ({ default: m.AdminPanel }))
 )
-import { ThemeToggle } from '@/components/ThemeToggle'
-import { SwimmingTimeline } from '@/components/SwimmingTimeline'
-import { StatsDashboard } from '@/components/StatsDashboard'
-import { SwimmingGoals } from '@/components/SwimmingGoals'
-import { PoolHeader } from '@/components/PoolHeader'
-import { useKV } from '@/hooks/useKV'
-import type { SiteContent, SwimmingGoal } from '@/lib/types'
 
-const defaultContent: SiteContent = {
-  profile: {
-    name: 'Alex',
-    age: 14,
-    tagline: 'Anime enthusiast • Competitive swimmer',
-    bio: 'Welcome to my corner of the internet! I love diving into epic anime series and making waves in the pool.',
-    initials: 'AK',
-  },
-  animeList: [
-    {
-      title: 'Demon Slayer',
-      genre: 'Action',
-      rating: 5,
-      description: 'Epic story with amazing animation and character development',
-    },
-    {
-      title: 'My Hero Academia',
-      genre: 'Shounen',
-      rating: 5,
-      description: 'Inspiring hero journey with cool powers and great fights',
-    },
-    {
-      title: 'Attack on Titan',
-      genre: 'Dark Fantasy',
-      rating: 4,
-      description: 'Mind-blowing plot twists and intense action sequences',
-    },
-    {
-      title: 'Jujutsu Kaisen',
-      genre: 'Action',
-      rating: 5,
-      description: 'Incredible fight scenes and awesome curse techniques',
-    },
-  ],
-  swimmingAchievements: [
-    {
-      title: '100m Freestyle',
-      time: '58.4s',
-      achievement: 'Personal Best',
-    },
-    {
-      title: '50m Butterfly',
-      time: '29.2s',
-      achievement: 'School Record',
-    },
-    {
-      title: '200m Medley',
-      time: '2:18.5',
-      achievement: 'Regional Qualifier',
-    },
-  ],
-  socialLinks: [
-    {
-      name: 'Discord',
-      platform: 'Discord',
-      username: 'AlexSwims#1234',
-    },
-    {
-      name: 'Instagram',
-      platform: 'Instagram',
-      username: '@alexswims_anime',
-    },
-    {
-      name: 'Twitch',
-      platform: 'Twitch',
-      username: 'alexswims',
-    },
-    {
-      name: 'YouTube',
-      platform: 'YouTube',
-      username: '@AlexSwimming',
-    },
-  ],
-  favoriteStrokes: ['Freestyle', 'Butterfly', 'Backstroke'],
-  hobbies: ['Gaming', 'Drawing', 'Reading Manga', 'Listening to Music'],
-  funFacts: [
-    "I've been swimming competitively for 5 years",
-    'My dream is to visit Japan and see anime studios',
-    'I practice swimming 5 days a week',
-    'I started watching anime when I was 11',
-  ],
-  timeline: [
-    {
-      id: '1',
-      date: new Date('2024-12-08').getTime(),
-      eventType: 'personal-best',
-      title: '50m Freestyle Personal Best',
-      stroke: '50m Freestyle',
-      time: '26.1s',
-      previousTime: '27.3s',
-      location: 'Winter Championship Trials',
-      description:
-        'Absolutely crushed my previous record! Sprint training has been paying off big time.',
-      placement: '1st Place',
-    },
-    {
-      id: '2',
-      date: new Date('2024-11-22').getTime(),
-      eventType: 'competition',
-      title: 'Thanksgiving Classic Meet',
-      stroke: '100m Butterfly',
-      time: '1:04.8s',
-      location: 'Metro Aquatic Complex',
-      description: 'First time competing in 100m fly - it was tough but I loved the challenge!',
-      placement: '4th Place',
-    },
-    {
-      id: '3',
-      date: new Date('2024-10-30').getTime(),
-      eventType: 'milestone',
-      title: 'Team Captain Announcement',
-      stroke: 'All Strokes',
-      time: 'N/A',
-      location: 'City Swim Club',
-      description:
-        'Got selected as one of the team captains for the winter season! So honored and ready to lead by example.',
-    },
-    {
-      id: '4',
-      date: new Date('2024-09-18').getTime(),
-      eventType: 'personal-best',
-      title: '200m Freestyle New Record',
-      stroke: '200m Freestyle',
-      time: '2:05.3s',
-      previousTime: '2:12.1s',
-      location: 'Fall Season Opener',
-      description: 'Nearly 7 seconds off my previous time! Endurance training is really working.',
-      placement: '2nd Place',
-    },
-    {
-      id: '5',
-      date: new Date('2024-08-12').getTime(),
-      eventType: 'training',
-      title: 'Summer Training Camp Graduation',
-      stroke: 'All Strokes',
-      time: 'N/A',
-      location: 'Elite Swimming Academy',
-      description:
-        'Completed 2-week intensive training camp. Learned advanced techniques and made friends from other teams!',
-    },
-    {
-      id: '6',
-      date: new Date('2024-07-04').getTime(),
-      eventType: 'competition',
-      title: 'Independence Day Invitational',
-      stroke: '50m Backstroke',
-      time: '32.7s',
-      location: 'Community Pool',
-      description:
-        "Fun meet on the 4th of July. Backstroke isn't my strongest but improving every time!",
-      placement: '5th Place',
-    },
-    {
-      id: '7',
-      date: new Date('2024-05-25').getTime(),
-      eventType: 'personal-best',
-      title: '100m Breaststroke Breakthrough',
-      stroke: '100m Breaststroke',
-      time: '1:14.2s',
-      previousTime: '1:19.8s',
-      location: 'Spring Championships',
-      description: 'Finally getting the hang of breaststroke technique. Over 5 seconds faster!',
-      placement: '3rd Place',
-    },
-    {
-      id: '8',
-      date: new Date('2024-04-10').getTime(),
-      eventType: 'milestone',
-      title: '4x100m Relay Team Record',
-      stroke: 'Freestyle Relay',
-      time: '3:42.1s',
-      location: 'Regional Team Meet',
-      description:
-        'Our relay team set a new club record! Amazing feeling to achieve this with my teammates.',
-      placement: '1st Place',
-    },
-    {
-      id: '9',
-      date: new Date('2024-03-02').getTime(),
-      eventType: 'training',
-      title: 'Flip Turn Mastery',
-      stroke: 'All Strokes',
-      time: 'N/A',
-      location: 'Team Practice',
-      description:
-        'Coach says my flip turns are finally competition-ready. Those underwater drills were brutal but worth it!',
-    },
-    {
-      id: '10',
-      date: new Date('2024-01-15').getTime(),
-      eventType: 'personal-best',
-      title: '100m Freestyle Personal Best',
-      stroke: '100m Freestyle',
-      time: '58.4s',
-      previousTime: '1:01.2s',
-      location: 'City Aquatic Center',
-      description: 'Broke my personal record by almost 3 seconds! All that training is paying off.',
-      placement: '2nd Place',
-    },
-    {
-      id: '11',
-      date: new Date('2023-11-20').getTime(),
-      eventType: 'competition',
-      title: 'Regional Championships',
-      stroke: '50m Butterfly',
-      time: '29.2s',
-      location: 'State Pool Complex',
-      description: 'Set a new school record and qualified for state championships!',
-      placement: '1st Place',
-    },
-    {
-      id: '12',
-      date: new Date('2023-09-10').getTime(),
-      eventType: 'milestone',
-      title: 'First Sub-60 Second 100m Freestyle',
-      stroke: '100m Freestyle',
-      time: '59.8s',
-      previousTime: '1:01.2s',
-      location: 'Team Practice',
-      description: 'Finally broke the 1-minute barrier! This has been my goal for months.',
-    },
-    {
-      id: '13',
-      date: new Date('2023-06-05').getTime(),
-      eventType: 'competition',
-      title: 'Summer Invitational',
-      stroke: '200m Medley',
-      time: '2:18.5s',
-      location: 'Lake Shore Pool',
-      description:
-        'Solid performance in all four strokes. Looking forward to improving my backstroke.',
-      placement: '3rd Place',
-    },
-    {
-      id: '14',
-      date: new Date('2023-03-15').getTime(),
-      eventType: 'training',
-      title: 'Technique Breakthrough',
-      stroke: 'Butterfly',
-      time: '30.5s',
-      location: 'Team Practice',
-      description:
-        'Coach helped me fix my butterfly technique. Starting to feel much more efficient in the water.',
-    },
-    {
-      id: '15',
-      date: new Date('2023-01-08').getTime(),
-      eventType: 'milestone',
-      title: 'Joined Competitive Swim Team',
-      stroke: 'All Strokes',
-      time: 'N/A',
-      location: 'City Swim Club',
-      description:
-        'Officially joined the competitive team after years of recreational swimming. Ready to take it to the next level!',
-    },
-  ],
+function SectionDivider() {
+  return <Separator className="mx-auto max-w-6xl" />
 }
-
-const defaultGoals: SwimmingGoal[] = [
-  {
-    id: '1',
-    stroke: '50m Freestyle',
-    targetTime: '25.0s',
-    currentBest: '26.1s',
-    deadline: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    notes:
-      'Focus on explosive starts and powerful turns. Need to work on underwater dolphin kicks.',
-    achieved: false,
-  },
-  {
-    id: '2',
-    stroke: '100m Freestyle',
-    targetTime: '56.0s',
-    currentBest: '58.4s',
-    deadline: new Date(Date.now() + 120 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    notes: 'Maintain consistent pace throughout. Breathing pattern every 3 strokes.',
-    achieved: false,
-  },
-  {
-    id: '3',
-    stroke: '100m Butterfly',
-    targetTime: '1:02.0',
-    currentBest: '1:04.8s',
-    notes: 'Working on timing and rhythm. Core strength training 3x per week.',
-    achieved: false,
-  },
-  {
-    id: '4',
-    stroke: '200m Freestyle',
-    targetTime: '2:00.0',
-    currentBest: '2:05.3s',
-    deadline: new Date(Date.now() + 150 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    notes:
-      'Build endurance with longer training sets. Target sub-2 minute by summer championships.',
-    achieved: false,
-  },
-]
 
 function App() {
   const [content, setContent] = useKV<SiteContent>('site-content', defaultContent)
   const [goals] = useKV<SwimmingGoal[]>('swimming-goals', defaultGoals)
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [message, setMessage] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [ownerEmail, setOwnerEmail] = useState<string>('')
-
-  // Admin panel is always available - it has its own password protection
-  const showAdminPanel = true
-
-  useEffect(() => {
-    const checkOwnership = async () => {
-      try {
-        if (typeof window !== 'undefined' && window.spark?.user) {
-          const user = await window.spark.user()
-          if (user?.email) {
-            setOwnerEmail(user.email)
-          }
-        }
-      } catch {
-        // Not running in Spark environment - that's fine
-      }
-    }
-    checkOwnership()
-  }, [])
-
-  const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  }
-
-  const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-      },
-    },
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-
-    try {
-      const response = await fetch('/api/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, message }),
-      })
-      if (!response.ok) {
-        const { error } = (await response.json().catch(() => ({}))) as { error?: string }
-        toast.error(error ?? "Couldn't send your message. Please try again.")
-        return
-      }
-    } catch {
-      toast.error("Couldn't send your message. Please check your connection.")
-      return
-    } finally {
-      setIsSubmitting(false)
-    }
-
-    if (ownerEmail) {
-      try {
-        const emailPrompt = `Generate a friendly email notification for a website owner. The website owner received a new contact form submission with the following details:
-
-From: ${name}
-Email: ${email}
-Message: ${message}
-
-Create a concise, friendly email notification (subject and body) that informs the owner about this new message. Format the output as JSON with "subject" and "body" fields. Keep it professional but warm.`
-
-        const emailContent = await window.spark.llm(emailPrompt, 'gpt-4o-mini', true)
-        const { subject } = JSON.parse(emailContent)
-
-        toast.success(`Message sent! Owner will be notified at ${ownerEmail} 📧`, {
-          description: subject,
-        })
-      } catch {
-        toast.success("Message sent! I'll get back to you soon! 🎉")
-      }
-    } else {
-      toast.success("Message sent! I'll get back to you soon! 🎉")
-    }
-
-    setName('')
-    setEmail('')
-    setMessage('')
-  }
-
-  const getSocialIcon = (platform: string) => {
-    switch (platform) {
-      case 'Discord':
-        return DiscordLogo
-      case 'Instagram':
-        return InstagramLogo
-      case 'Twitch':
-        return TwitchLogo
-      case 'YouTube':
-        return YoutubeLogo
-      case 'Twitter':
-        return XLogo
-      case 'TikTok':
-        return TiktokLogo
-      default:
-        return PaperPlaneTilt
-    }
-  }
-
-  const getSocialStyle = (platform: string) => {
-    switch (platform) {
-      case 'Discord':
-        return {
-          color: 'hover:bg-[#5865F2] hover:text-white',
-          bgColor: 'bg-[#5865F2]/10',
-        }
-      case 'Instagram':
-        return {
-          color:
-            'hover:bg-linear-to-tr hover:from-[#f9ce34] hover:via-[#ee2a7b] hover:to-[#6228d7] hover:text-white',
-          bgColor: 'bg-linear-to-tr from-[#f9ce34]/10 via-[#ee2a7b]/10 to-[#6228d7]/10',
-        }
-      case 'Twitch':
-        return {
-          color: 'hover:bg-[#9146FF] hover:text-white',
-          bgColor: 'bg-[#9146FF]/10',
-        }
-      case 'YouTube':
-        return {
-          color: 'hover:bg-[#FF0000] hover:text-white',
-          bgColor: 'bg-[#FF0000]/10',
-        }
-      case 'Twitter':
-        return {
-          color: 'hover:bg-[#1DA1F2] hover:text-white',
-          bgColor: 'bg-[#1DA1F2]/10',
-        }
-      case 'TikTok':
-        return {
-          color: 'hover:bg-black hover:text-white',
-          bgColor: 'bg-black/10',
-        }
-      default:
-        return {
-          color: 'hover:bg-accent hover:text-accent-foreground',
-          bgColor: 'bg-accent/10',
-        }
-    }
-  }
-
-  const handleContentUpdate = useCallback(
-    (newContent: SiteContent) => {
-      setContent(newContent)
-    },
-    [setContent]
-  )
 
   return (
     <div className="gradient-mesh min-h-screen">
       <ThemeToggle />
       <motion.div initial="hidden" animate="visible" variants={containerVariants}>
-        <section className="wave-pattern px-4 pt-20 pb-12 sm:py-16 md:py-24">
-          <motion.div variants={itemVariants} className="mx-auto max-w-6xl text-center">
-            <div className="mb-4 flex justify-center sm:mb-6">
-              <Avatar className="border-accent h-20 w-20 border-4 shadow-lg sm:h-24 sm:w-24 md:h-32 md:w-32">
-                <AvatarFallback className="from-primary to-secondary bg-linear-to-br text-2xl font-bold text-white sm:text-4xl">
-                  {content?.profile?.initials || 'AK'}
-                </AvatarFallback>
-              </Avatar>
-            </div>
-            <h1 className="from-primary via-secondary to-accent mb-3 bg-linear-to-r bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:mb-4 sm:text-4xl md:text-6xl">
-              Hey, I'm {content?.profile?.name || 'Alex'}!
-            </h1>
-            <p className="text-muted-foreground mx-auto max-w-2xl px-2 text-base sm:text-lg md:text-xl">
-              {content?.profile?.age || 14} years old •{' '}
-              {content?.profile?.tagline || 'Anime enthusiast • Competitive swimmer'}
-            </p>
-            <p className="text-foreground/80 mx-auto mt-3 max-w-xl px-2 text-sm sm:mt-4 sm:text-base md:text-lg">
-              {content?.profile?.bio || 'Welcome to my corner of the internet!'}
-            </p>
-          </motion.div>
-        </section>
+        <ProfileHero profile={content?.profile} />
 
         <PoolHeader />
 
-        <Separator className="mx-auto max-w-6xl" />
+        <SectionDivider />
+        <AnimeSection animeList={content?.animeList} />
 
-        <section className="px-4 py-10 sm:py-12 md:py-20">
-          <div className="mx-auto max-w-6xl">
-            <motion.div variants={itemVariants} className="mb-6 sm:mb-8 md:mb-12">
-              <div className="mb-2 flex items-center gap-2 sm:mb-3 sm:gap-3">
-                <Television size={28} className="text-accent sm:hidden" />
-                <Television size={32} weight="duotone" className="text-accent hidden sm:block" />
-                <h2 className="text-2xl font-bold sm:text-3xl md:text-4xl">Favorite Anime</h2>
-              </div>
-              <p className="text-muted-foreground text-sm sm:text-base">
-                The shows that got me hooked on anime
-              </p>
-            </motion.div>
+        <SectionDivider />
+        <SwimmingSection
+          achievements={content?.swimmingAchievements}
+          favoriteStrokes={content?.favoriteStrokes}
+        />
 
-            <motion.div
-              variants={containerVariants}
-              className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4"
-            >
-              {content?.animeList?.map((anime, index) => (
-                <motion.div key={index} variants={itemVariants}>
-                  <Card className="hover:shadow-accent/20 hover:border-accent/50 group h-full border-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-                    <CardHeader>
-                      <CardTitle className="group-hover:text-accent transition-colors">
-                        {anime.title}
-                      </CardTitle>
-                      <CardDescription>
-                        <Badge variant="secondary" className="mt-2">
-                          {anime.genre}
-                        </Badge>
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="mb-3 flex gap-1">
-                        {[...Array(anime.rating)].map((_, i) => (
-                          <Star key={i} weight="fill" className="text-accent" size={16} />
-                        ))}
-                      </div>
-                      <p className="text-muted-foreground text-sm">{anime.description}</p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
-        </section>
+        <SectionDivider />
+        <Section icon={Target} title="Swimming Goals" subtitle="Target times I'm working towards">
+          <motion.div variants={itemVariants}>
+            <SwimmingGoals goals={goals || []} />
+          </motion.div>
+        </Section>
 
-        <Separator className="mx-auto max-w-6xl" />
+        <SectionDivider />
+        <Section
+          icon={ChartBar}
+          title="Performance Stats"
+          subtitle="Track your improvements and analyze your progress"
+        >
+          <motion.div variants={itemVariants}>
+            <StatsDashboard events={content?.timeline || []} />
+          </motion.div>
+        </Section>
 
-        <section className="px-4 py-10 sm:py-12 md:py-20">
-          <div className="mx-auto max-w-6xl">
-            <motion.div variants={itemVariants} className="mb-6 sm:mb-8 md:mb-12">
-              <div className="mb-2 flex items-center gap-2 sm:mb-3 sm:gap-3">
-                <Waves size={28} className="text-primary sm:hidden" />
-                <Waves size={32} weight="duotone" className="text-primary hidden sm:block" />
-                <h2 className="text-2xl font-bold sm:text-3xl md:text-4xl">Swimming</h2>
-              </div>
-              <p className="text-muted-foreground text-sm sm:text-base">
-                My times and achievements in the pool
-              </p>
-            </motion.div>
+        <SectionDivider />
+        <Section
+          icon={ChartLineUp}
+          title="Progress Timeline"
+          subtitle="My swimming journey and achievements over time"
+        >
+          <motion.div variants={itemVariants}>
+            <SwimmingTimeline events={content?.timeline || []} />
+          </motion.div>
+        </Section>
 
-            <motion.div variants={containerVariants} className="space-y-6">
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                {content?.swimmingAchievements?.map((achievement, index) => (
-                  <motion.div key={index} variants={itemVariants}>
-                    <Card className="hover:shadow-secondary/30 hover:border-secondary group border-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-                      <CardHeader>
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <CardTitle className="group-hover:text-secondary transition-colors">
-                              {achievement.title}
-                            </CardTitle>
-                            <CardDescription className="mt-2 flex items-center gap-2">
-                              <Clock size={16} />
-                              <span className="text-foreground text-lg font-semibold">
-                                {achievement.time}
-                              </span>
-                            </CardDescription>
-                          </div>
-                          <Trophy size={24} weight="duotone" className="text-secondary" />
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <Badge variant="outline" className="border-secondary text-secondary">
-                          {achievement.achievement}
-                        </Badge>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
-              </div>
+        <SectionDivider />
+        <Section
+          icon={Images}
+          title="Photo Gallery"
+          subtitle="My favorite moments from swimming meets and anime"
+        >
+          <motion.div variants={itemVariants}>
+            <PhotoGallery />
+          </motion.div>
+        </Section>
 
-              <motion.div variants={itemVariants}>
-                <Card className="from-primary/5 to-secondary/5 border-primary/20 border-2 bg-linear-to-br">
-                  <CardHeader>
-                    <CardTitle>Favorite Strokes</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-wrap gap-2">
-                      {content?.favoriteStrokes?.map((stroke, index) => (
-                        <Badge
-                          key={index}
-                          className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                        >
-                          {stroke}
-                        </Badge>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </motion.div>
-          </div>
-        </section>
+        <SectionDivider />
+        <AboutSection hobbies={content?.hobbies} funFacts={content?.funFacts} />
 
-        <Separator className="mx-auto max-w-6xl" />
-
-        <section className="px-4 py-10 sm:py-12 md:py-20">
-          <div className="mx-auto max-w-6xl">
-            <motion.div variants={itemVariants} className="mb-6 sm:mb-8 md:mb-12">
-              <div className="mb-2 flex items-center gap-2 sm:mb-3 sm:gap-3">
-                <Target size={28} className="text-accent sm:hidden" />
-                <Target size={32} weight="duotone" className="text-accent hidden sm:block" />
-                <h2 className="text-2xl font-bold sm:text-3xl md:text-4xl">Swimming Goals</h2>
-              </div>
-              <p className="text-muted-foreground text-sm sm:text-base">
-                Target times I'm working towards
-              </p>
-            </motion.div>
-
-            <motion.div variants={itemVariants}>
-              <SwimmingGoals goals={goals || []} />
-            </motion.div>
-          </div>
-        </section>
-
-        <Separator className="mx-auto max-w-6xl" />
-
-        <section className="px-4 py-10 sm:py-12 md:py-20">
-          <div className="mx-auto max-w-6xl">
-            <motion.div variants={itemVariants} className="mb-6 sm:mb-8 md:mb-12">
-              <div className="mb-2 flex items-center gap-2 sm:mb-3 sm:gap-3">
-                <ChartBar size={28} className="text-accent sm:hidden" />
-                <ChartBar size={32} weight="duotone" className="text-accent hidden sm:block" />
-                <h2 className="text-2xl font-bold sm:text-3xl md:text-4xl">Performance Stats</h2>
-              </div>
-              <p className="text-muted-foreground text-sm sm:text-base">
-                Track your improvements and analyze your progress
-              </p>
-            </motion.div>
-
-            <motion.div variants={itemVariants}>
-              <StatsDashboard events={content?.timeline || []} />
-            </motion.div>
-          </div>
-        </section>
-
-        <Separator className="mx-auto max-w-6xl" />
-
-        <section className="px-4 py-10 sm:py-12 md:py-20">
-          <div className="mx-auto max-w-6xl">
-            <motion.div variants={itemVariants} className="mb-6 sm:mb-8 md:mb-12">
-              <div className="mb-2 flex items-center gap-2 sm:mb-3 sm:gap-3">
-                <ChartLineUp size={28} className="text-accent sm:hidden" />
-                <ChartLineUp size={32} weight="duotone" className="text-accent hidden sm:block" />
-                <h2 className="text-2xl font-bold sm:text-3xl md:text-4xl">Progress Timeline</h2>
-              </div>
-              <p className="text-muted-foreground text-sm sm:text-base">
-                My swimming journey and achievements over time
-              </p>
-            </motion.div>
-
-            <motion.div variants={itemVariants}>
-              <SwimmingTimeline events={content?.timeline || []} />
-            </motion.div>
-          </div>
-        </section>
-
-        <Separator className="mx-auto max-w-6xl" />
-
-        <section className="px-4 py-10 sm:py-12 md:py-20">
-          <div className="mx-auto max-w-6xl">
-            <motion.div variants={itemVariants} className="mb-6 sm:mb-8 md:mb-12">
-              <div className="mb-2 flex items-center gap-2 sm:mb-3 sm:gap-3">
-                <Images size={28} className="text-accent sm:hidden" />
-                <Images size={32} weight="duotone" className="text-accent hidden sm:block" />
-                <h2 className="text-2xl font-bold sm:text-3xl md:text-4xl">Photo Gallery</h2>
-              </div>
-              <p className="text-muted-foreground text-sm sm:text-base">
-                My favorite moments from swimming meets and anime
-              </p>
-            </motion.div>
-
-            <motion.div variants={itemVariants}>
-              <PhotoGallery />
-            </motion.div>
-          </div>
-        </section>
-
-        <Separator className="mx-auto max-w-6xl" />
-
-        <section className="px-4 py-10 sm:py-12 md:py-20">
-          <div className="mx-auto max-w-6xl">
-            <motion.div variants={itemVariants} className="mb-6 sm:mb-8 md:mb-12">
-              <div className="mb-2 flex items-center gap-2 sm:mb-3 sm:gap-3">
-                <User size={28} className="text-accent sm:hidden" />
-                <User size={32} weight="duotone" className="text-accent hidden sm:block" />
-                <h2 className="text-2xl font-bold sm:text-3xl md:text-4xl">About Me</h2>
-              </div>
-              <p className="text-muted-foreground text-sm sm:text-base">
-                A bit more about what I enjoy
-              </p>
-            </motion.div>
-
-            <motion.div variants={itemVariants}>
-              <Card className="border-2">
-                <CardContent className="pt-6">
-                  <div className="space-y-6">
-                    <div>
-                      <h3 className="mb-3 text-xl font-semibold">Other Hobbies</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {content?.hobbies?.map((hobby, index) => (
-                          <Badge key={index} variant="secondary" className="text-sm">
-                            {hobby}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    <div>
-                      <h3 className="mb-3 text-xl font-semibold">Fun Facts</h3>
-                      <ul className="text-muted-foreground space-y-2">
-                        {content?.funFacts?.map((fact, index) => (
-                          <li key={index} className="flex items-start gap-2">
-                            <span className="text-accent mt-1">•</span>
-                            <span>{fact}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
-        </section>
-
-        <Separator className="mx-auto max-w-6xl" />
-
-        <section className="px-4 py-10 sm:py-12 md:py-20">
-          <div className="mx-auto max-w-6xl">
-            <motion.div variants={itemVariants} className="mb-6 text-center sm:mb-8 md:mb-12">
-              <div className="mb-2 flex items-center justify-center gap-2 sm:mb-3 sm:gap-3">
-                <PaperPlaneTilt size={28} className="text-accent sm:hidden" />
-                <PaperPlaneTilt
-                  size={32}
-                  weight="duotone"
-                  className="text-accent hidden sm:block"
-                />
-                <h2 className="text-2xl font-bold sm:text-3xl md:text-4xl">Let's Connect!</h2>
-              </div>
-              <p className="text-muted-foreground text-sm sm:text-base">
-                Find me on social media or send me a message
-              </p>
-            </motion.div>
-
-            <div className="grid gap-6 sm:gap-8 lg:grid-cols-2">
-              <motion.div variants={itemVariants}>
-                <Card className="h-full border-2">
-                  <CardHeader>
-                    <CardTitle className="text-2xl">Social Media</CardTitle>
-                    <CardDescription>Let's be friends online!</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {content?.socialLinks?.map((social, index) => {
-                      const Icon = getSocialIcon(social.platform)
-                      const style = getSocialStyle(social.platform)
-                      return (
-                        <motion.div
-                          key={index}
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                        >
-                          <Button
-                            variant="outline"
-                            className={`h-auto w-full justify-start gap-3 py-4 transition-all duration-300 ${style.color} ${style.bgColor}`}
-                          >
-                            <Icon size={24} weight="fill" />
-                            <div className="text-left">
-                              <div className="font-semibold">{social.name}</div>
-                              <div className="text-sm opacity-80">{social.username}</div>
-                            </div>
-                          </Button>
-                        </motion.div>
-                      )
-                    })}
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              <motion.div variants={itemVariants}>
-                <Card className="h-full border-2">
-                  <CardHeader>
-                    <CardTitle className="text-2xl">Send a Message</CardTitle>
-                    <CardDescription>Want to chat? Drop me a message!</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="name">Your Name</Label>
-                        <Input
-                          id="name"
-                          placeholder="What should I call you?"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          required
-                          className="focus:border-accent border-2"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="email">Your Email</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="your.email@example.com"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                          className="focus:border-accent border-2"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="message">Message</Label>
-                        <Textarea
-                          id="message"
-                          placeholder="Tell me what's up! Want to talk anime? Swimming tips? Gaming?"
-                          value={message}
-                          onChange={(e) => setMessage(e.target.value)}
-                          required
-                          rows={5}
-                          className="focus:border-accent resize-none border-2"
-                        />
-                      </div>
-                      <Button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="bg-accent hover:bg-accent/90 text-accent-foreground w-full font-semibold"
-                      >
-                        {isSubmitting ? (
-                          <span className="flex items-center gap-2">
-                            <motion.div
-                              animate={{ rotate: 360 }}
-                              transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                            >
-                              <PaperPlaneTilt size={20} />
-                            </motion.div>
-                            Sending...
-                          </span>
-                        ) : (
-                          <span className="flex items-center gap-2">
-                            <PaperPlaneTilt size={20} />
-                            Send Message
-                          </span>
-                        )}
-                      </Button>
-                    </form>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </div>
-          </div>
-        </section>
+        <SectionDivider />
+        <ConnectSection socialLinks={content?.socialLinks} />
 
         <footer className="text-muted-foreground border-t px-4 py-8 text-center">
           <p className="text-sm">Thanks for visiting my page! 🌊✨</p>
         </footer>
       </motion.div>
 
-      {showAdminPanel && content && (
+      {content && (
         <Suspense
           fallback={
             <div className="bg-card fixed right-4 bottom-4 rounded-lg p-4 shadow-lg">
@@ -921,7 +107,7 @@ Create a concise, friendly email notification (subject and body) that informs th
             </div>
           }
         >
-          <AdminPanel content={content} onContentUpdate={handleContentUpdate} />
+          <AdminPanel content={content} onContentUpdate={setContent} />
         </Suspense>
       )}
     </div>

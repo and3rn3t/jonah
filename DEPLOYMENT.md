@@ -94,7 +94,7 @@ npx wrangler r2 bucket create jonah-photos
 
 Then bind it under Settings → Functions → R2 bucket bindings: variable name `PHOTOS`, bucket
 `jonah-photos` (also declared in `wrangler.toml`). After deploying, open the admin panel →
-Settings → **Move photos** once to move any older base64 photos into R2.
+Photos → **Move photos** once to move any older base64 photos into R2.
 
 ### 7. Set the admin password
 

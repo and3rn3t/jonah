@@ -27,13 +27,20 @@ Product spec: `PRD.md`; deploy guide: `DEPLOYMENT.md`.
 
 ```
 src/
-  App.tsx               # whole page + defaultContent + state; mutations happen here
-  components/           # AdminPanel, PhotoGallery, PoolHeader, StatsDashboard,
+  App.tsx               # page composition: loads site-content/swimming-goals, orders sections
+  content/defaults.ts   # defaultContent, defaultGoals (shown until KV has data)
+  sections/             # page sections: ProfileHero, AnimeSection, SwimmingSection, AboutSection,
+                        # ConnectSection + ContactForm; Section.tsx = shared heading wrapper
+  components/           # AdminPanel (unlock + tab shell), PhotoGallery, PoolHeader, StatsDashboard,
                         # SwimmingGoals, SwimmingTimeline, ThemeToggle; ui/ = shadcn primitives
+  components/admin/     # one file per admin tab (<Name>Tab.tsx); content tabs take ContentTabProps
+                        # and edit AdminPanel's draft, Goals/Photos tabs write their KV keys directly
   hooks/useKV.ts        # useKV<T>(key, default): localStorage cache + /api/kv/:key sync
   lib/types.ts          # SiteContent, Profile, Anime, SwimmingAchievement, TimelineEvent,
                         # SwimmingGoal, ContactMessage, SocialLink, Photo
   lib/photos.ts         # compress (WebP, max 1600px) + upload/delete gallery images in R2
+  lib/motion.ts         # shared containerVariants / itemVariants
+  lib/social.ts         # social platform → icon + brand colors
   styles/theme.css      # theme CSS variables (light/dark)
 functions/api/          # Pages Functions: kv/[key].ts backs useKV, messages.ts takes the contact form
 functions/_lib/         # shared json() / isAdmin() helpers (no routes)
@@ -69,12 +76,10 @@ too).
 - Theme preference is per-device `localStorage`, not KV.
 - Gallery images: `gallery-photos` in KV holds only metadata; each image is an R2 object served
   at `/api/photos/<id>` (immutable cache, so never reuse an id). Older entries may still hold
-  base64 `data:` URLs until "Move photos" in admin Settings is run.
+  base64 `data:` URLs until "Move photos" in the admin Photos tab is run.
 - New content field: add it to the interface in `src/lib/types.ts`, a default in
-  `defaultContent` in `App.tsx`, an editor in `AdminPanel.tsx`, and render it in the right
-  section.
-- `window.spark.user()` is still called when present (owner detection) and safely skipped
-  otherwise.
+  `src/content/defaults.ts`, an editor in the matching `src/components/admin/*Tab.tsx`, and
+  render it in the matching `src/sections/*` component.
 
 ## Conventions
 
