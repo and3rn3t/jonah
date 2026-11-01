@@ -44,13 +44,29 @@ import {
 import { useKV } from '@/hooks/useKV'
 import { clearAdminToken, getAdminToken, setAdminToken, verifyAdminToken } from '@/lib/adminToken'
 import { toast } from 'sonner'
-import type { SiteContent, ContactMessage, TimelineEvent, SwimmingGoal } from '@/lib/types'
-import type { Photo } from '@/components/PhotoGallery'
+import { deleteStoredPhoto, isLegacyPhoto, newPhotoId, uploadPhoto } from '@/lib/photos'
+import type { SiteContent, ContactMessage, TimelineEvent, SwimmingGoal, Photo } from '@/lib/types'
 import { Checkbox } from '@/components/ui/checkbox'
 
 interface AdminPanelProps {
   content: SiteContent
   onContentUpdate: (content: SiteContent) => void
+}
+
+interface NewPhotoDraft {
+  title: string
+  category: 'swimming' | 'anime'
+  description: string
+  file: File | null
+  previewUrl: string
+}
+
+const emptyNewPhoto: NewPhotoDraft = {
+  title: '',
+  category: 'swimming',
+  description: '',
+  file: null,
+  previewUrl: '',
 }
 
 export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
@@ -71,12 +87,9 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
   const [isAddPhotoDialogOpen, setIsAddPhotoDialogOpen] = useState(false)
   const [isEditPhotoDialogOpen, setIsEditPhotoDialogOpen] = useState(false)
   const [editingPhoto, setEditingPhoto] = useState<Photo | null>(null)
-  const [newPhoto, setNewPhoto] = useState({
-    title: '',
-    category: 'swimming' as 'swimming' | 'anime',
-    description: '',
-    url: '',
-  })
+  const [newPhoto, setNewPhoto] = useState(emptyNewPhoto)
+  const [isUploading, setIsUploading] = useState(false)
+  const [isMigrating, setIsMigrating] = useState(false)
 
   const unreadMessages = (messages || []).filter((msg) => !msg.read)
 
@@ -281,32 +294,65 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
       return
     }
 
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      setNewPhoto((prev) => ({ ...prev, url: reader.result as string }))
-    }
-    reader.readAsDataURL(file)
+    if (newPhoto.previewUrl) URL.revokeObjectURL(newPhoto.previewUrl)
+    setNewPhoto((prev) => ({ ...prev, file, previewUrl: URL.createObjectURL(file) }))
   }
 
-  const handleAddPhoto = () => {
-    if (!newPhoto.title || !newPhoto.url) {
+  const resetNewPhoto = () => {
+    if (newPhoto.previewUrl) URL.revokeObjectURL(newPhoto.previewUrl)
+    setNewPhoto(emptyNewPhoto)
+  }
+
+  const handleAddPhoto = async () => {
+    if (!newPhoto.title || !newPhoto.file) {
       toast.error('Please provide a title and upload an image')
       return
     }
 
-    const photo: Photo = {
-      id: Date.now().toString(),
-      title: newPhoto.title,
-      category: newPhoto.category,
-      description: newPhoto.description || undefined,
-      url: newPhoto.url,
+    setIsUploading(true)
+    try {
+      const id = newPhotoId()
+      const photo: Photo = {
+        id,
+        title: newPhoto.title,
+        category: newPhoto.category,
+        description: newPhoto.description || undefined,
+        url: await uploadPhoto(id, newPhoto.file),
+      }
+
+      setPhotos((currentPhotos) => [...(currentPhotos || []), photo])
+      toast.success('Photo added successfully! 📸')
+      resetNewPhoto()
+      setIsAddPhotoDialogOpen(false)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Upload failed')
+    } finally {
+      setIsUploading(false)
     }
+  }
 
-    setPhotos((currentPhotos) => [...(currentPhotos || []), photo])
-    toast.success('Photo added successfully! 📸')
+  const legacyPhotoCount = (photos || []).filter((photo) => isLegacyPhoto(photo.url)).length
 
-    setNewPhoto({ title: '', category: 'swimming', description: '', url: '' })
-    setIsAddPhotoDialogOpen(false)
+  const handleMigratePhotos = async () => {
+    setIsMigrating(true)
+    try {
+      const migrated: Photo[] = []
+      for (const photo of photos || []) {
+        if (!isLegacyPhoto(photo.url)) {
+          migrated.push(photo)
+          continue
+        }
+        const id = newPhotoId()
+        const blob = await (await fetch(photo.url)).blob()
+        migrated.push({ ...photo, id, url: await uploadPhoto(id, blob) })
+      }
+      setPhotos(migrated)
+      toast.success('Photos moved to cloud storage! ☁️')
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Migration failed')
+    } finally {
+      setIsMigrating(false)
+    }
   }
 
   const handleEditPhoto = () => {
@@ -322,6 +368,10 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
   }
 
   const handleDeletePhoto = (photoId: string) => {
+    const photo = (photos || []).find((p) => p.id === photoId)
+    if (photo) {
+      deleteStoredPhoto(photo.url).catch(() => console.warn(`Failed to delete image ${photoId}`))
+    }
     setPhotos((currentPhotos) => (currentPhotos || []).filter((p) => p.id !== photoId))
     toast.success('Photo deleted')
   }
@@ -1162,10 +1212,10 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
                           onChange={handleFileUpload}
                           className="cursor-pointer"
                         />
-                        {newPhoto.url && (
+                        {newPhoto.previewUrl && (
                           <div className="border-accent/50 relative h-32 w-full overflow-hidden rounded-lg border-2">
                             <img
-                              src={newPhoto.url}
+                              src={newPhoto.previewUrl}
                               alt="Preview"
                               className="h-full w-full object-cover"
                             />
@@ -1177,9 +1227,13 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
                       <Button variant="outline" onClick={() => setIsAddPhotoDialogOpen(false)}>
                         Cancel
                       </Button>
-                      <Button onClick={handleAddPhoto} className="bg-accent hover:bg-accent/90">
+                      <Button
+                        onClick={handleAddPhoto}
+                        disabled={isUploading}
+                        className="bg-accent hover:bg-accent/90"
+                      >
                         <Upload size={18} className="mr-2" />
-                        Add Photo
+                        {isUploading ? 'Uploading…' : 'Add Photo'}
                       </Button>
                     </DialogFooter>
                   </DialogContent>
@@ -1191,10 +1245,12 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
                   {photos.map((photo) => (
                     <Card key={photo.id} className="overflow-hidden">
                       <div className="relative aspect-square">
-                        {photo.url.startsWith('data:') ? (
+                        {photo.url ? (
                           <img
                             src={photo.url}
                             alt={photo.title}
+                            loading="lazy"
+                            decoding="async"
                             className="h-full w-full object-cover"
                           />
                         ) : (
@@ -1559,6 +1615,27 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
                   </Button>
                 </CardContent>
               </Card>
+              {legacyPhotoCount > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Images size={24} weight="duotone" className="text-accent" />
+                      Move Photos to Cloud Storage
+                    </CardTitle>
+                    <CardDescription>
+                      {legacyPhotoCount} photo{legacyPhotoCount === 1 ? ' is' : 's are'} still saved
+                      the old way, which makes the site slow to load. Moving them shrinks and
+                      uploads each one.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button onClick={handleMigratePhotos} disabled={isMigrating} className="gap-2">
+                      <Upload size={18} weight="bold" />
+                      {isMigrating ? 'Moving photos…' : 'Move photos'}
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
             </TabsContent>
           </Tabs>
 

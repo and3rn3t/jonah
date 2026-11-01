@@ -86,7 +86,17 @@ If using external DNS:
 4. Variable name: `SITE_KV`
 5. Select your KV namespace
 
-### 6. Set the admin password
+### 6. Create the R2 bucket for photos
+
+```bash
+npx wrangler r2 bucket create jonah-photos
+```
+
+Then bind it under Settings → Functions → R2 bucket bindings: variable name `PHOTOS`, bucket
+`jonah-photos` (also declared in `wrangler.toml`). After deploying, open the admin panel →
+Settings → **Move photos** once to move any older base64 photos into R2.
+
+### 7. Set the admin password
 
 The admin panel unlocks with a server-side secret. Nothing is stored in KV or the browser
 beyond the current tab's session.
@@ -97,7 +107,7 @@ npx wrangler pages secret put ADMIN_TOKEN --project-name jonah-portfolio
 
 Run the same command again to rotate it. If `ADMIN_TOKEN` is unset, every write is rejected.
 
-### 7. Deploy
+### 8. Deploy
 
 ```bash
 npm run deploy
@@ -154,7 +164,9 @@ If you need environment variables, add them in:
 │   └── api/
 │       ├── kv/
 │       │   └── [key].ts    # KV API: public GET allowlist, admin-only PUT
-│       └── messages.ts     # POST contact form (server-side append, rate-limited)
+│       ├── messages.ts     # POST contact form (server-side append, rate-limited)
+│       └── photos/
+│           └── [id].ts     # Gallery images in R2: public GET, admin PUT/DELETE
 ├── wrangler.toml           # Cloudflare configuration
 └── dist/                   # Build output (deployed)
 ```

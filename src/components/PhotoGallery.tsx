@@ -5,14 +5,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useKV } from '@/hooks/useKV'
-
-export interface Photo {
-  id: string
-  url: string
-  title: string
-  category: 'swimming' | 'anime'
-  description?: string
-}
+import type { Photo } from '@/lib/types'
 
 export function PhotoGallery() {
   const [photos] = useKV<Photo[]>('gallery-photos', [])
@@ -93,8 +86,14 @@ export function PhotoGallery() {
                 className="group hover:shadow-accent/20 hover:border-accent/50 relative aspect-square cursor-pointer overflow-hidden border-2 transition-all duration-300 hover:shadow-xl"
                 onClick={() => setSelectedPhoto(photo)}
               >
-                {photo.url.startsWith('data:') ? (
-                  <img src={photo.url} alt={photo.title} className="h-full w-full object-cover" />
+                {photo.url ? (
+                  <img
+                    src={photo.url}
+                    alt={photo.title}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover"
+                  />
                 ) : (
                   <div className="from-primary/10 to-secondary/10 relative flex h-full w-full items-center justify-center bg-linear-to-br">
                     <div className="text-6xl transition-transform duration-300 group-hover:scale-110">
@@ -178,11 +177,12 @@ export function PhotoGallery() {
               onClick={(e) => e.stopPropagation()}
             >
               <Card className="border-accent/50 overflow-hidden border-2">
-                {selectedPhoto.url.startsWith('data:') ? (
+                {selectedPhoto.url ? (
                   <div className="flex aspect-video items-center justify-center bg-black">
                     <img
                       src={selectedPhoto.url}
                       alt={selectedPhoto.title}
+                      decoding="async"
                       className="max-h-full max-w-full object-contain"
                     />
                   </div>

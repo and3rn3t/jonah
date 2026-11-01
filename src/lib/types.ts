@@ -68,3 +68,12 @@ export interface SwimmingGoal {
   achieved: boolean
   achievedDate?: number
 }
+
+export interface Photo {
+  id: string
+  /** `/api/photos/<id>` (R2); legacy entries may still hold a base64 `data:` URL */
+  url: string
+  title: string
+  category: 'swimming' | 'anime'
+  description?: string
+}

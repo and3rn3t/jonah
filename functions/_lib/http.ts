@@ -2,6 +2,7 @@
 
 export interface Env {
   SITE_KV: KVNamespace
+  PHOTOS: R2Bucket
   ADMIN_TOKEN?: string
 }
 
