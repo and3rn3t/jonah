@@ -28,7 +28,7 @@ export default defineConfig({
         manualChunks: {
           'vendor-react': ['react', 'react-dom'],
           'vendor-ui': ['@radix-ui/react-dialog', '@radix-ui/react-tabs', '@radix-ui/react-select', '@radix-ui/react-dropdown-menu'],
-          'vendor-motion': ['framer-motion'],
+          'vendor-motion': ['motion/react'],
         }
       }
     }

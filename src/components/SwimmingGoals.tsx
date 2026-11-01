@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Target, TrendUp, CheckCircle, Clock } from '@phosphor-icons/react'
 import type { SwimmingGoal } from '@/lib/types'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 
 interface SwimmingGoalsProps {
   goals: SwimmingGoal[]

@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { TrendDown, Trophy, Target, Timer, Flame } from '@phosphor-icons/react'
 import type { TimelineEvent } from '@/lib/types'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 
 interface StatsDashboardProps {
   events: TimelineEvent[]
