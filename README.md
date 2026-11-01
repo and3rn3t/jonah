@@ -66,11 +66,14 @@ The app will be available at http://localhost:5000
 
 ```
 src/
-├── App.tsx                 # Main application component
+├── App.tsx                 # Page composition (sections in order)
+├── content/defaults.ts     # Default content shown until KV has data
+├── sections/               # Page sections (hero, anime, swimming, about, connect)
 ├── main.tsx                # Application entry point
 ├── index.css               # Global styles
 ├── components/
-│   ├── AdminPanel.tsx      # Content management panel
+│   ├── AdminPanel.tsx      # Content management panel (unlock + tabs)
+│   ├── admin/              # One component per admin tab
 │   ├── PhotoGallery.tsx    # Photo grid with lightbox
 │   ├── PoolHeader.tsx      # Animated pool header
 │   ├── StatsDashboard.tsx  # Swimming statistics
