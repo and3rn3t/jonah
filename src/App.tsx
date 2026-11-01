@@ -38,7 +38,7 @@ import { StatsDashboard } from '@/components/StatsDashboard'
 import { SwimmingGoals } from '@/components/SwimmingGoals'
 import { PoolHeader } from '@/components/PoolHeader'
 import { useKV } from '@/hooks/useKV'
-import type { SiteContent, ContactMessage, SwimmingGoal } from '@/lib/types'
+import type { SiteContent, SwimmingGoal } from '@/lib/types'
 
 const defaultContent: SiteContent = {
   profile: {
@@ -340,7 +340,6 @@ const defaultGoals: SwimmingGoal[] = [
 
 function App() {
   const [content, setContent] = useKV<SiteContent>('site-content', defaultContent)
-  const [, setMessages] = useKV<ContactMessage[]>('contact-messages', [])
   const [goals] = useKV<SwimmingGoal[]>('swimming-goals', defaultGoals)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -392,16 +391,23 @@ function App() {
     e.preventDefault()
     setIsSubmitting(true)
 
-    const newMessage: ContactMessage = {
-      id: Date.now().toString(),
-      name,
-      email,
-      message,
-      timestamp: Date.now(),
-      read: false,
+    try {
+      const response = await fetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, message }),
+      })
+      if (!response.ok) {
+        const { error } = (await response.json().catch(() => ({}))) as { error?: string }
+        toast.error(error ?? "Couldn't send your message. Please try again.")
+        return
+      }
+    } catch {
+      toast.error("Couldn't send your message. Please check your connection.")
+      return
+    } finally {
+      setIsSubmitting(false)
     }
-
-    setMessages((currentMessages) => [...(currentMessages || []), newMessage])
 
     if (ownerEmail) {
       try {
@@ -429,7 +435,6 @@ Create a concise, friendly email notification (subject and body) that informs th
     setName('')
     setEmail('')
     setMessage('')
-    setIsSubmitting(false)
   }
 
   const getSocialIcon = (platform: string) => {

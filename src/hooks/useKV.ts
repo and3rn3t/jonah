@@ -1,52 +1,63 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { toast } from 'sonner'
+import { authHeaders, clearAdminToken } from '@/lib/adminToken'
+
+interface UseKVOptions {
+  /**
+   * Admin-only key: skips the localStorage cache (keeps private data off shared devices)
+   * and only fetches while `enabled` is true.
+   */
+  requiresAuth?: boolean
+  enabled?: boolean
+}
 
 /**
  * Custom useKV hook for Cloudflare KV storage
  * Compatible API with @github/spark/hooks useKV
  * Falls back to localStorage when KV API is unavailable
  */
-export function useKV<T>(key: string, defaultValue: T): [T, (value: T | ((prev: T) => T)) => void] {
+export function useKV<T>(
+  key: string,
+  defaultValue: T,
+  { requiresAuth = false, enabled = true }: UseKVOptions = {}
+): [T, (value: T | ((prev: T) => T)) => void] {
+  const useCache = !requiresAuth
+
   const [value, setValue] = useState<T>(() => {
     // Try to load from localStorage first for immediate hydration
-    if (typeof window !== 'undefined') {
-      try {
-        const stored = localStorage.getItem(`kv:${key}`)
-        if (stored !== null) {
-          return JSON.parse(stored) as T
-        }
-      } catch {
-        // Ignore parse errors
+    if (!useCache || typeof window === 'undefined') return defaultValue
+    try {
+      const stored = localStorage.getItem(`kv:${key}`)
+      if (stored !== null) {
+        return JSON.parse(stored) as T
       }
+    } catch {
+      // Ignore parse errors
     }
     return defaultValue
   })
 
-  const [isLoaded, setIsLoaded] = useState(false)
   const pendingUpdate = useRef<T | null>(null)
   const isUpdating = useRef(false)
 
   // Fetch from Cloudflare KV on mount
   useEffect(() => {
+    if (!enabled) return
     let cancelled = false
 
     const fetchValue = async () => {
       try {
-        const response = await fetch(`/api/kv/${encodeURIComponent(key)}`)
-        if (response.ok) {
-          const data = (await response.json()) as { value: T | null }
-          if (!cancelled && data.value !== null) {
-            setValue(data.value)
-            // Sync to localStorage
-            localStorage.setItem(`kv:${key}`, JSON.stringify(data.value))
-          }
-        }
+        const response = await fetch(`/api/kv/${encodeURIComponent(key)}`, {
+          headers: requiresAuth ? authHeaders() : {},
+        })
+        if (!response.ok) return
+        const data = (await response.json()) as { value: T | null }
+        if (cancelled || data.value === null) return
+        setValue(data.value)
+        if (useCache) localStorage.setItem(`kv:${key}`, JSON.stringify(data.value))
       } catch {
         // Fall back to localStorage (already loaded in initial state)
         console.warn(`Failed to fetch KV value for ${key}, using localStorage fallback`)
-      } finally {
-        if (!cancelled) {
-          setIsLoaded(true)
-        }
       }
     }
 
@@ -55,13 +66,12 @@ export function useKV<T>(key: string, defaultValue: T): [T, (value: T | ((prev: 
     return () => {
       cancelled = true
     }
-  }, [key])
+  }, [key, enabled, requiresAuth, useCache])
 
   // Persist to Cloudflare KV
   const persistToKV = useCallback(
     async (newValue: T) => {
-      // Always save to localStorage immediately
-      localStorage.setItem(`kv:${key}`, JSON.stringify(newValue))
+      if (useCache) localStorage.setItem(`kv:${key}`, JSON.stringify(newValue))
 
       // Queue the update if already updating
       if (isUpdating.current) {
@@ -72,11 +82,17 @@ export function useKV<T>(key: string, defaultValue: T): [T, (value: T | ((prev: 
       isUpdating.current = true
 
       try {
-        await fetch(`/api/kv/${encodeURIComponent(key)}`, {
+        const response = await fetch(`/api/kv/${encodeURIComponent(key)}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
           body: JSON.stringify({ value: newValue }),
         })
+        if (response.status === 401) {
+          clearAdminToken()
+          toast.error('Admin session expired. Unlock the admin panel again to save.')
+        } else if (!response.ok) {
+          toast.error(`Couldn't save ${key} (error ${response.status})`)
+        }
       } catch {
         console.warn(`Failed to persist KV value for ${key}`)
       } finally {
@@ -90,7 +106,7 @@ export function useKV<T>(key: string, defaultValue: T): [T, (value: T | ((prev: 
         }
       }
     },
-    [key]
+    [key, useCache]
   )
 
   // Setter function compatible with useState setter
@@ -110,104 +126,4 @@ export function useKV<T>(key: string, defaultValue: T): [T, (value: T | ((prev: 
   )
 
   return [value, setKVValue]
-}
-
-/**
- * Alternative hook that returns loading state
- */
-export function useKVWithLoading<T>(
-  key: string,
-  defaultValue: T
-): {
-  value: T
-  setValue: (value: T | ((prev: T) => T)) => void
-  isLoading: boolean
-} {
-  const [value, setValue] = useState<T>(defaultValue)
-  const [isLoading, setIsLoading] = useState(true)
-  const pendingUpdate = useRef<T | null>(null)
-  const isUpdating = useRef(false)
-
-  useEffect(() => {
-    let cancelled = false
-
-    const fetchValue = async () => {
-      // Try localStorage first
-      try {
-        const stored = localStorage.getItem(`kv:${key}`)
-        if (stored !== null) {
-          setValue(JSON.parse(stored) as T)
-        }
-      } catch {
-        // Ignore
-      }
-
-      try {
-        const response = await fetch(`/api/kv/${encodeURIComponent(key)}`)
-        if (response.ok) {
-          const data = (await response.json()) as { value: T | null }
-          if (!cancelled && data.value !== null) {
-            setValue(data.value)
-            localStorage.setItem(`kv:${key}`, JSON.stringify(data.value))
-          }
-        }
-      } catch {
-        console.warn(`Failed to fetch KV value for ${key}`)
-      } finally {
-        if (!cancelled) {
-          setIsLoading(false)
-        }
-      }
-    }
-
-    fetchValue()
-    return () => {
-      cancelled = true
-    }
-  }, [key])
-
-  const persistToKV = useCallback(
-    async (newValue: T) => {
-      localStorage.setItem(`kv:${key}`, JSON.stringify(newValue))
-
-      if (isUpdating.current) {
-        pendingUpdate.current = newValue
-        return
-      }
-
-      isUpdating.current = true
-
-      try {
-        await fetch(`/api/kv/${encodeURIComponent(key)}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ value: newValue }),
-        })
-      } catch {
-        console.warn(`Failed to persist KV value for ${key}`)
-      } finally {
-        isUpdating.current = false
-        if (pendingUpdate.current !== null) {
-          const pending = pendingUpdate.current
-          pendingUpdate.current = null
-          persistToKV(pending)
-        }
-      }
-    },
-    [key]
-  )
-
-  const setKVValue = useCallback(
-    (newValue: T | ((prev: T) => T)) => {
-      setValue((prev) => {
-        const resolved =
-          typeof newValue === 'function' ? (newValue as (prev: T) => T)(prev) : newValue
-        persistToKV(resolved)
-        return resolved
-      })
-    },
-    [persistToKV]
-  )
-
-  return { value, setValue: setKVValue, isLoading }
 }

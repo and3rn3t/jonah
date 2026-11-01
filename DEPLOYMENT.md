@@ -86,7 +86,18 @@ If using external DNS:
 4. Variable name: `SITE_KV`
 5. Select your KV namespace
 
-### 6. Deploy
+### 6. Set the admin password
+
+The admin panel unlocks with a server-side secret. Nothing is stored in KV or the browser
+beyond the current tab's session.
+
+```bash
+npx wrangler pages secret put ADMIN_TOKEN --project-name jonah-portfolio
+```
+
+Run the same command again to rotate it. If `ADMIN_TOKEN` is unset, every write is rejected.
+
+### 7. Deploy
 
 ```bash
 npm run deploy
@@ -94,9 +105,11 @@ npm run deploy
 
 ## Local Development with KV
 
-To test with local KV storage:
+To test with local KV storage, put the admin secret in `.dev.vars` (gitignored):
 
 ```bash
+echo 'ADMIN_TOKEN=dev-secret' > .dev.vars
+
 # Build first
 npm run build
 
@@ -139,8 +152,9 @@ If you need environment variables, add them in:
 ```
 ├── functions/
 │   └── api/
-│       └── kv/
-│           └── [key].ts    # KV API endpoint
+│       ├── kv/
+│       │   └── [key].ts    # KV API: public GET allowlist, admin-only PUT
+│       └── messages.ts     # POST contact form (server-side append, rate-limited)
 ├── wrangler.toml           # Cloudflare configuration
 └── dist/                   # Build output (deployed)
 ```
