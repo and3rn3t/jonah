@@ -1,6 +1,6 @@
 # Cloudflare Pages configuration
 name = "jonah-portfolio"
-compatibility_date = "2024-01-01"
+compatibility_date = "2026-10-01"
 pages_build_output_dir = "dist"
 
 # KV Namespace binding - create this in Cloudflare dashboard

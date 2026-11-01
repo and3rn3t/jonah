@@ -58,7 +58,7 @@ A vibrant personal web page showcasing a 14-year-old's passions for anime and sw
 - Functionality: Toggle between light and dark color themes with persistent preference
 - Purpose: Provide comfortable viewing in different lighting conditions and user preference
 - Trigger: User clicks theme toggle button in top-right corner
-- Progression: Click toggle → Theme transitions smoothly → Dark mode activated → Preference saved to KV storage → Setting persists across page visits
+- Progression: Click toggle → Theme transitions smoothly → Dark mode activated → Preference saved to localStorage → Setting persists across page visits
 - Success criteria: Theme switches smoothly without flash, all colors remain accessible and readable in both modes, preference persists between sessions
 
 **Admin Content Management**
@@ -83,7 +83,7 @@ A vibrant personal web page showcasing a 14-year-old's passions for anime and sw
 - **Content Validation**: Admin panel prevents saving invalid data (e.g., empty titles, invalid ratings)
 - **Multiple Social Platforms**: Supports Discord, Instagram, Twitch, YouTube, Twitter, and TikTok with platform-specific styling
 - **Admin Dialog Overflow**: Large content lists scroll within dialog on smaller screens
-- **Theme Persistence**: Theme preference stored in KV and applied on page load to prevent flash of wrong theme
+- **Theme Persistence**: Theme preference stored in localStorage and applied on page load to prevent flash of wrong theme
 - **Dark Mode Colors**: All color variables recalibrated for dark mode to maintain contrast ratios and accessibility
 - **Empty Messages State**: If no contact messages exist, displays empty state with helpful icon and message
 - **Email Notification Failure**: If email notification fails, form submission still succeeds and message is stored

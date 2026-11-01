@@ -29,3 +29,6 @@ dist-ssr
 pids
 .devcontainer/
 
+
+# Local Pages Function secrets (ADMIN_TOKEN)
+.dev.vars

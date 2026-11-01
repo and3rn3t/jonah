@@ -1,10 +1,22 @@
 import { Moon, Sun } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
-import { useKV } from '@/hooks/useKV'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+
+type Theme = 'light' | 'dark'
+
+// Per-device preference, so it stays in localStorage rather than shared KV
+const STORAGE_KEY = 'theme-preference'
+
+function readStoredTheme(): Theme {
+  try {
+    return localStorage.getItem(STORAGE_KEY) === 'dark' ? 'dark' : 'light'
+  } catch {
+    return 'light'
+  }
+}
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useKV<'light' | 'dark'>('theme-preference', 'light')
+  const [theme, setTheme] = useState<Theme>(readStoredTheme)
 
   useEffect(() => {
     const root = document.documentElement
@@ -12,6 +24,11 @@ export function ThemeToggle() {
       root.classList.add('dark')
     } else {
       root.classList.remove('dark')
+    }
+    try {
+      localStorage.setItem(STORAGE_KEY, theme)
+    } catch {
+      // Ignore
     }
   }, [theme])
 

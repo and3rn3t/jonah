@@ -20,7 +20,7 @@
         "lint:fix": "eslint . --fix",
         "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
         "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\"",
-        "typecheck": "tsc --noEmit",
+        "typecheck": "tsc --noEmit && tsc -p functions --noEmit",
         "preview": "vite preview",
         "deploy": "npm run build && npx wrangler pages deploy dist",
         "pages:dev": "npx wrangler pages dev dist --kv SITE_KV"

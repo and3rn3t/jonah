@@ -42,6 +42,7 @@ import {
   Target,
 } from '@phosphor-icons/react'
 import { useKV } from '@/hooks/useKV'
+import { clearAdminToken, getAdminToken, setAdminToken, verifyAdminToken } from '@/lib/adminToken'
 import { toast } from 'sonner'
 import type { SiteContent, ContactMessage, TimelineEvent, SwimmingGoal } from '@/lib/types'
 import type { Photo } from '@/components/PhotoGallery'
@@ -54,13 +55,16 @@ interface AdminPanelProps {
 
 export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const [isUnlocked, setIsUnlocked] = useState(false)
+  const [isUnlocked, setIsUnlocked] = useState(() => getAdminToken() !== null)
   const [showPasswordDialog, setShowPasswordDialog] = useState(false)
   const [passwordInput, setPasswordInput] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [adminPassword, setAdminPassword] = useKV<string>('admin-password', 'admin123')
+  const [isVerifying, setIsVerifying] = useState(false)
   const [localContent, setLocalContent] = useState<SiteContent>(content)
-  const [messages, setMessages] = useKV<ContactMessage[]>('contact-messages', [])
+  const [messages, setMessages] = useKV<ContactMessage[]>('contact-messages', [], {
+    requiresAuth: true,
+    enabled: isUnlocked,
+  })
   const [photos, setPhotos] = useKV<Photo[]>('gallery-photos', [])
   const [goals, setGoals] = useKV<SwimmingGoal[]>('swimming-goals', [])
   const [unreadCount, setUnreadCount] = useState(0)
@@ -80,17 +84,32 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
     setUnreadCount(unreadMessages.length)
   }
 
-  const handlePasswordSubmit = () => {
-    if (passwordInput === adminPassword) {
-      setIsUnlocked(true)
-      setShowPasswordDialog(false)
-      setIsOpen(true)
-      setPasswordInput('')
-      toast.success('Welcome! Admin panel unlocked! 🔓')
-    } else {
+  const handlePasswordSubmit = async () => {
+    const token = passwordInput.trim()
+    if (!token || isVerifying) return
+
+    setIsVerifying(true)
+    const isValid = await verifyAdminToken(token)
+    setIsVerifying(false)
+    setPasswordInput('')
+
+    if (!isValid) {
       toast.error('Wrong password! Try again 🔒')
-      setPasswordInput('')
+      return
     }
+
+    setAdminToken(token)
+    setIsUnlocked(true)
+    setShowPasswordDialog(false)
+    setIsOpen(true)
+    toast.success('Welcome! Admin panel unlocked! 🔓')
+  }
+
+  const handleLock = () => {
+    clearAdminToken()
+    setIsUnlocked(false)
+    setIsOpen(false)
+    toast.success('Admin panel locked 🔒')
   }
 
   const handleGearClick = () => {
@@ -417,9 +436,6 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
                   {showPassword ? <EyeSlash size={20} /> : <Eye size={20} />}
                 </button>
               </div>
-              <p className="text-muted-foreground text-xs">
-                Default password: <code className="bg-muted rounded px-1.5 py-0.5">admin123</code>
-              </p>
             </div>
           </div>
           <DialogFooter>
@@ -432,9 +448,13 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
             >
               Cancel
             </Button>
-            <Button onClick={handlePasswordSubmit} className="bg-accent hover:bg-accent/90 gap-2">
+            <Button
+              onClick={handlePasswordSubmit}
+              disabled={isVerifying}
+              className="bg-accent hover:bg-accent/90 gap-2"
+            >
               <LockKey size={18} weight="bold" />
-              Unlock
+              {isVerifying ? 'Checking…' : 'Unlock'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1522,50 +1542,21 @@ export function AdminPanel({ content, onContentUpdate }: AdminPanelProps) {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <LockKey size={24} weight="duotone" className="text-accent" />
-                    Admin Password
+                    Admin Access
                   </CardTitle>
                   <CardDescription>
-                    Change the password required to access this admin panel
+                    The admin password is set on the server. To change it, run{' '}
+                    <code className="bg-muted rounded px-1.5 py-0.5">
+                      wrangler pages secret put ADMIN_TOKEN
+                    </code>
+                    .
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="new-password">New Password</Label>
-                    <div className="relative">
-                      <Input
-                        id="new-password"
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="Enter new password"
-                        className="pr-10"
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            const input = e.currentTarget
-                            if (input.value.trim()) {
-                              setAdminPassword(input.value)
-                              toast.success('Password updated successfully! 🔐')
-                              input.value = ''
-                            }
-                          }
-                        }}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
-                      >
-                        {showPassword ? <EyeSlash size={20} /> : <Eye size={20} />}
-                      </button>
-                    </div>
-                    <p className="text-muted-foreground text-xs">
-                      Press Enter to save the new password
-                    </p>
-                  </div>
-                  <div className="bg-muted/50 space-y-2 rounded-lg p-4">
-                    <p className="text-sm font-semibold">Current Password:</p>
-                    <code className="bg-background rounded border px-2 py-1 text-sm">
-                      {showPassword ? adminPassword : '•'.repeat(adminPassword?.length || 0)}
-                    </code>
-                  </div>
+                <CardContent>
+                  <Button variant="outline" onClick={handleLock} className="gap-2">
+                    <LockKey size={18} weight="bold" />
+                    Lock admin panel
+                  </Button>
                 </CardContent>
               </Card>
             </TabsContent>

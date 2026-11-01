@@ -18,8 +18,9 @@ Product spec: `PRD.md`; deploy guide: `DEPLOYMENT.md`.
 - React 19 + TypeScript 6 + Vite 7 (SWC), Tailwind CSS 4, Radix/shadcn UI
   (`src/components/ui/`), Motion (`motion/react`), Phosphor/Lucide icons
 - **npm** (`package-lock.json`), Node `24.22.0` (`.nvmrc`)
-- Cloudflare Pages Function `functions/api/kv/[key].ts` (GET/PUT) bound to KV namespace
-  `SITE_KV` (`wrangler.toml`, project `jonah-portfolio`)
+- Cloudflare Pages Functions bound to KV namespace `SITE_KV` (`wrangler.toml`, project
+  `jonah-portfolio`): `functions/api/kv/[key].ts` (GET/PUT) and `functions/api/messages.ts`
+  (POST contact form); shared helpers in `functions/_lib/http.ts`
 
 ## Layout
 
@@ -32,7 +33,8 @@ src/
   lib/types.ts          # SiteContent, Profile, Anime, SwimmingAchievement, TimelineEvent,
                         # SwimmingGoal, ContactMessage, SocialLink (Photo lives in PhotoGallery.tsx)
   styles/theme.css      # theme CSS variables (light/dark)
-functions/api/kv/       # Pages Function backing useKV
+functions/api/          # Pages Functions: kv/[key].ts backs useKV, messages.ts takes the contact form
+functions/_lib/         # shared json() / isAdmin() helpers (no routes)
 ```
 
 ## Commands
@@ -41,10 +43,11 @@ functions/api/kv/       # Pages Function backing useKV
 npm install
 npm run dev            # Vite + Spark plugin, port 5000; useKV falls back to localStorage
 npm run lint           # eslint (lint:fix to autofix)
-npm run typecheck      # tsc --noEmit
+npm run typecheck      # tsc for src/ and functions/
 npm run format:check   # prettier (format to write)
 npm run build          # tsc -b --noCheck && vite build — doesn't type-check; run typecheck too
-npm run pages:dev      # wrangler pages dev dist --kv SITE_KV (Function + KV locally, after build)
+npm run pages:dev      # wrangler pages dev dist --kv SITE_KV (Functions + KV locally, after build;
+                       # needs ADMIN_TOKEN in .dev.vars to unlock the admin panel)
 ```
 
 CI (`ci.yml`) runs `npm run lint && npm run typecheck && npm run format:check && npm run build`.
@@ -53,9 +56,15 @@ too).
 
 ## Data & State
 
-- Persistent data uses `useKV` from **`@/hooks/useKV`** (not `@github/spark/hooks`). Keys in
-  use: `site-content`, `contact-messages`, `swimming-goals`, `gallery-photos`,
-  `theme-preference`, `admin-password`.
+- Persistent data uses `useKV` from **`@/hooks/useKV`** (not `@github/spark/hooks`). Keys:
+  `site-content`, `swimming-goals`, `gallery-photos` (public read) and `contact-messages`
+  (admin read, `useKV(..., { requiresAuth: true, enabled })`). A new key must be added to
+  the allowlists in `functions/api/kv/[key].ts` or the API returns 404.
+- **Auth**: every PUT and every admin read needs `Authorization: Bearer <ADMIN_TOKEN>` (a Pages
+  secret). The admin panel verifies the typed password against the server and keeps it in
+  `sessionStorage` (`src/lib/adminToken.ts`). Visitors never write KV directly: the contact form
+  POSTs to `/api/messages`.
+- Theme preference is per-device `localStorage`, not KV.
 - New content field: add it to the interface in `src/lib/types.ts`, a default in
   `defaultContent` in `App.tsx`, an editor in `AdminPanel.tsx`, and render it in the right
   section.
