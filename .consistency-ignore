@@ -8,3 +8,5 @@
 .github/labeler.yml
 .github/labels.yml
 .github/release-drafter.yml
+# npm repo: commit-msg keeps npx instead of the template's pnpm exec
+.husky/commit-msg
